@@ -61,6 +61,7 @@ export const NAV_LINKS = [
 
 export const USER_MENU_LINKS = [
   { href: '/profile', label: 'Profile', icon: 'User' },
+  { href: '/seller', label: 'Seller Dashboard', icon: 'Store' },
   { href: '/wishlist', label: 'Wishlist', icon: 'Heart' },
   { href: '/orders', label: 'Price Alerts', icon: 'Bell' },
   { href: '/settings', label: 'Settings', icon: 'Settings' },

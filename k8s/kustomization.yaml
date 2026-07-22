@@ -1,0 +1,25 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: pricebrain
+
+commonLabels:
+  app.kubernetes.io/name: pricebrain
+  app.kubernetes.io/managed-by: kustomize
+
+resources:
+  - 00-namespace.yaml
+  - 01-secrets.yaml
+  - 02-postgres.yaml
+  - 03-redis.yaml
+  - 04-elasticsearch.yaml
+  - 05-backend.yaml
+  - 06-frontend.yaml
+  - 07-ingress.yaml
+  - 08-cert-manager.yaml
+  - 09-monitoring.yaml
+
+labels:
+  - pairs:
+      app.kubernetes.io/name: pricebrain
+      app.kubernetes.io/managed-by: kustomize

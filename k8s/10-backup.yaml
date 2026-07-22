@@ -1,0 +1,370 @@
+# PriceBrain Backup & Recovery Configuration
+---
+# PostgreSQL Backup CronJob
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-backup-script
+  namespace: pricebrain
+data:
+  backup.sh: |
+    #!/bin/bash
+    set -e
+    
+    # Configuration
+    BACKUP_DIR="/backups/postgres"
+    TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+    BACKUP_FILE="${BACKUP_DIR}/postgres_backup_${TIMESTAMP}.sql.gz"
+    RETENTION_DAYS=7
+    DATABASE_HOST="postgres"
+    DATABASE_NAME="${POSTGRES_DB}"
+    DATABASE_USER="${POSTGRES_USER}"
+    
+    echo "Starting PostgreSQL backup at $(date)"
+    
+    # Create backup directory
+    mkdir -p ${BACKUP_DIR}
+    
+    # Perform backup
+    PGPASSWORD="${POSTGRES_PASSWORD}" pg_dump -h ${DATABASE_HOST} \
+      -U ${DATABASE_USER} \
+      -d ${DATABASE_NAME} \
+      --no-owner --no-acl \
+      | gzip > ${BACKUP_FILE}
+    
+    # Verify backup
+    if [ -f "${BACKUP_FILE}" ] && [ -s "${BACKUP_FILE}" ]; then
+      echo "Backup created: ${BACKUP_FILE}"
+      ls -lh ${BACKUP_FILE}
+    else
+      echo "ERROR: Backup failed or file is empty"
+      exit 1
+    fi
+    
+    # Cleanup old backups
+    find ${BACKUP_DIR} -name "postgres_backup_*.sql.gz" -mtime +${RETENTION_DAYS} -delete
+    echo "Old backups cleaned up (retention: ${RETENTION_DAYS} days)"
+    
+    echo "PostgreSQL backup completed successfully"
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: postgres-backup
+  namespace: pricebrain
+spec:
+  schedule: "0 2 * * *"  # Daily at 2 AM
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: postgres-backup
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: backup
+              image: postgres:16-alpine
+              command: ["/bin/sh", "/scripts/backup.sh"]
+              env:
+                - name: POSTGRES_DB
+                  valueFrom:
+                    secretKeyRef:
+                      name: pricebrain-postgres
+                      key: postgres-db
+                - name: POSTGRES_USER
+                  valueFrom:
+                    secretKeyRef:
+                      name: pricebrain-postgres
+                      key: postgres-user
+                - name: POSTGRES_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: pricebrain-postgres
+                      key: postgres-password
+              volumeMounts:
+                - name: backup-script
+                  mountPath: /scripts
+                - name: backup-storage
+                  mountPath: /backups
+          volumes:
+            - name: backup-script
+              configMap:
+                name: postgres-backup-script
+                defaultMode: 0755
+            - name: backup-storage
+              persistentVolumeClaim:
+                claimName: backup-pvc
+---
+# PostgreSQL Restore Job (Manual trigger)
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-restore-script
+  namespace: pricebrain
+data:
+  restore.sh: |
+    #!/bin/bash
+    set -e
+    
+    if [ -z "$BACKUP_FILE" ]; then
+      echo "ERROR: BACKUP_FILE environment variable not set"
+      exit 1
+    fi
+    
+    echo "Starting PostgreSQL restore from: $BACKUP_FILE"
+    
+    gunzip -c ${BACKUP_FILE} | PGPASSWORD="${POSTGRES_PASSWORD}" psql \
+      -h ${DATABASE_HOST} \
+      -U ${DATABASE_USER} \
+      -d ${DATABASE_NAME}
+    
+    echo "PostgreSQL restore completed successfully"
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: postgres-restore
+  namespace: pricebrain
+spec:
+  template:
+    metadata:
+      labels:
+        app: postgres-restore
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: restore
+          image: postgres:16-alpine
+          command: ["/bin/sh", "/scripts/restore.sh"]
+          env:
+            - name: DATABASE_HOST
+              value: "postgres"
+            - name: DATABASE_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: pricebrain-postgres
+                  key: postgres-db
+            - name: DATABASE_USER
+              valueFrom:
+                secretKeyRef:
+                  name: pricebrain-postgres
+                  key: postgres-user
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: pricebrain-postgres
+                  key: postgres-password
+          volumeMounts:
+            - name: restore-script
+              mountPath: /scripts
+      volumes:
+        - name: restore-script
+          configMap:
+            name: postgres-restore-script
+            defaultMode: 0755
+---
+# Redis Backup CronJob
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: redis-backup-script
+  namespace: pricebrain
+data:
+  backup.sh: |
+    #!/bin/bash
+    set -e
+    
+    BACKUP_DIR="/backups/redis"
+    TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+    BACKUP_FILE="${BACKUP_DIR}/redis_backup_${TIMESTAMP}.rdb.gz"
+    RETENTION_DAYS=7
+    REDIS_HOST="redis-master"
+    REDIS_PORT="6379"
+    
+    echo "Starting Redis backup at $(date)"
+    
+    mkdir -p ${BACKUP_DIR}
+    
+    # Trigger SAVE command via redis-cli
+    redis-cli -h ${REDIS_HOST} -p ${REDIS_PORT} SAVE
+    
+    # Copy from PVC mount (backup container shares volume with redis)
+    cp /data/dump.rdb ${BACKUP_FILE}.tmp 2>/dev/null
+    
+    # Compress backup
+    gzip -c ${BACKUP_FILE}.tmp > ${BACKUP_FILE}
+    rm ${BACKUP_FILE}.tmp
+    
+    if [ -f "${BACKUP_FILE}" ] && [ -s "${BACKUP_FILE}" ]; then
+      echo "Backup created: ${BACKUP_FILE}"
+      ls -lh ${BACKUP_FILE}
+    else
+      echo "WARNING: Backup file empty or missing"
+    fi
+    
+    # Cleanup old backups
+    find ${BACKUP_DIR} -name "redis_backup_*.rdb.gz" -mtime +${RETENTION_DAYS} -delete
+    
+    echo "Redis backup completed"
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: redis-backup
+  namespace: pricebrain
+spec:
+  schedule: "0 3 * * *"  # Daily at 3 AM
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: redis-backup
+        spec:
+          serviceAccountName: backup-sa
+          restartPolicy: OnFailure
+          containers:
+            - name: backup
+              image: redis:7-alpine
+              command: ["/bin/sh", "/scripts/backup.sh"]
+              volumeMounts:
+                - name: backup-script
+                  mountPath: /scripts
+                - name: backup-storage
+                  mountPath: /backups
+          volumes:
+            - name: backup-script
+              configMap:
+                name: redis-backup-script
+                defaultMode: 0755
+            - name: backup-storage
+              persistentVolumeClaim:
+                claimName: backup-pvc
+---
+# Backup Storage PVC
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: backup-pvc
+  namespace: pricebrain
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+---
+# Backup ServiceAccount & RBAC
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: backup-sa
+  namespace: pricebrain
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: backup-role
+  namespace: pricebrain
+rules:
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list"]
+  - apiGroups: [""]
+    resources: ["pods/exec"]
+    verbs: ["create"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: backup-rolebinding
+  namespace: pricebrain
+subjects:
+  - kind: ServiceAccount
+    name: backup-sa
+    namespace: pricebrain
+roleRef:
+  kind: Role
+  name: backup-role
+  apiGroup: rbac.authorization.k8s.io
+---
+# Redis Restore Job
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: redis-restore
+  namespace: pricebrain
+spec:
+  template:
+    metadata:
+      labels:
+        app: redis-restore
+    spec:
+      serviceAccountName: backup-sa
+      restartPolicy: OnFailure
+      containers:
+        - name: restore
+          image: redis:7-alpine
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              if [ -z "$BACKUP_FILE" ]; then
+                echo "ERROR: BACKUP_FILE not set"
+                exit 1
+              fi
+              echo "Restoring Redis from: $BACKUP_FILE"
+              gunzip -c ${BACKUP_FILE} > /tmp/dump.rdb
+              redis-cli -h redis CONFIG SET stop-writes-on-bgsave-error no
+              redis-cli -h redis SHUTDOWN NOSAVE || true
+              sleep 2
+              cp /tmp/dump.rdb /data/dump.rdb
+              redis-server --daemonize yes
+              sleep 2
+              echo "Redis restore completed"
+          env:
+            - name: BACKUP_FILE
+              value: "/backups/redis/redis_backup_latest.rdb.gz"
+          volumeMounts:
+            - name: backup-storage
+              mountPath: /backups
+      volumes:
+        - name: backup-storage
+          persistentVolumeClaim:
+            claimName: backup-pvc
+---
+# Elasticsearch Backup (Optional - via snapshot)
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: elasticsearch-backup-script
+  namespace: pricebrain
+data:
+  backup.sh: |
+    #!/bin/bash
+    set -e
+    
+    ES_HOST="http://elasticsearch:9200"
+    REPO_PATH="/backups/elasticsearch"
+    
+    echo "Creating Elasticsearch snapshot..."
+    
+    # Register snapshot repository
+    curl -X PUT "${ES_HOST}/_snapshot/pricebrain_backup" -H 'Content-Type: application/json' -d '{
+      "type": "fs",
+      "settings": {
+        "location": "/backups/elasticsearch",
+        "compress": true
+      }
+    }' 2>/dev/null || true
+    
+    # Create snapshot
+    curl -X PUT "${ES_HOST}/_snapshot/pricebrain_backup/snapshot_$(date +%Y%m%d_%H%M%S)?wait_for_completion=true"
+    
+    echo "Elasticsearch backup completed"

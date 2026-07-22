@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pricebrain-config
+  namespace: pricebrain
+data:
+  NODE_ENV: "production"
+  DATABASE_HOST: "postgres-svc"
+  DATABASE_PORT: "5432"
+  DATABASE_NAME: "pricebrain"
+  REDIS_HOST: "redis-svc"
+  REDIS_PORT: "6379"
+  ELASTICSEARCH_NODE: "http://elasticsearch-svc:9200"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: pricebrain-secrets
+  namespace: pricebrain
+type: Opaque
+stringData:
+  DATABASE_USER: "postgres"
+  DATABASE_PASSWORD: "CHANGE_ME_IN_PRODUCTION"
+  JWT_SECRET: "CHANGE_ME_IN_PRODUCTION_USE_STRONG_SECRET"
+  JWT_REFRESH_SECRET: "CHANGE_ME_IN_PRODUCTION_USE_STRONG_SECRET"
+  OPENAI_API_KEY: "sk-..." # Add your API key

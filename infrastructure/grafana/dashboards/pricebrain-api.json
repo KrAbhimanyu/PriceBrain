@@ -1,0 +1,32 @@
+{
+  "dashboard": {
+    "title": "PriceBrain API Dashboard",
+    "uid": "pricebrain-api",
+    "panels": [
+      {
+        "title": "Request Rate",
+        "type": "stat",
+        "gridPos": {"h": 4, "w": 6, "x": 0, "y": 0},
+        "targets": [{"expr": "sum(rate(http_requests_total[5m]))", "legendFormat": "req/s"}]
+      },
+      {
+        "title": "Response Time (p95)",
+        "type": "stat",
+        "gridPos": {"h": 4, "w": 6, "x": 6, "y": 0},
+        "targets": [{"expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le)) * 1000"}]
+      },
+      {
+        "title": "Error Rate",
+        "type": "stat",
+        "gridPos": {"h": 4, "w": 6, "x": 12, "y": 0},
+        "targets": [{"expr": "sum(rate(http_requests_total{status=~\"5..\"}[5m])) / sum(rate(http_requests_total[5m]))"}]
+      },
+      {
+        "title": "Active Connections",
+        "type": "stat",
+        "gridPos": {"h": 4, "w": 6, "x": 18, "y": 0},
+        "targets": [{"expr": "sum(http_active_requests)"}]
+      }
+    ]
+  }
+}

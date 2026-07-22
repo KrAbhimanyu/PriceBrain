@@ -1,0 +1,19 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: pricebrain
+
+resources:
+  - namespace.yml
+  - configmaps.yml
+  - postgres/postgres.yml
+  - redis/redis.yml
+  - elasticsearch/elasticsearch.yml
+  - backend/backend.yml
+  - frontend/frontend.yml
+  - monitoring/monitoring.yml
+  - ingress.yml
+
+commonLabels:
+  app.kubernetes.io/name: pricebrain
+  app.kubernetes.io/part-of: pricebrain-platform

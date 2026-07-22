@@ -1,0 +1,77 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: pricebrain-ingress
+  namespace: pricebrain
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    # HTTPS (uncomment for production with real domain):
+    # cert-manager.io/cluster-issuer: letsencrypt-prod
+    # nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    # nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/rate-limit: "100"
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
+spec:
+  ingressClassName: nginx
+  # TLS (uncomment for production with real domain):
+  # tls:
+  #   - hosts:
+  #       - pricebrain.example.com
+  #       - api.pricebrain.example.com
+  #     secretName: pricebrain-tls
+  rules:
+    # Production rules (uncomment for real domain):
+    # - host: pricebrain.example.com
+    #   http:
+    #     paths:
+    #       - path: /
+    #         pathType: Prefix
+    #         backend:
+    #           service:
+    #             name: frontend
+    #             port:
+    #               number: 80
+    # - host: api.pricebrain.example.com
+    #   http:
+    #     paths:
+    #       - path: /
+    #         pathType: Prefix
+    #         backend:
+    #           service:
+    #             name: backend
+    #             port:
+    #               number: 80
+    # Local development rules:
+    - host: localhost
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend
+                port:
+                  number: 80
+    - http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: backend
+                port:
+                  number: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: pricebrain-network-policy
+  namespace: pricebrain
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress

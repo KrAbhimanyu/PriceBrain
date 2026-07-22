@@ -37,6 +37,25 @@ const categoryRoutes: Record<string, string> = {
   'Books': '/categories/books',
 };
 
+// Mock data for when API is unavailable
+const MOCK_CATEGORIES: Category[] = [
+  { id: '1', name: 'Electronics', slug: 'electronics', image: '', description: '' },
+  { id: '2', name: 'Fashion', slug: 'fashion', image: '', description: '' },
+  { id: '3', name: 'Home & Kitchen', slug: 'home-kitchen', image: '', description: '' },
+  { id: '4', name: 'Beauty', slug: 'beauty', image: '', description: '' },
+  { id: '5', name: 'Sports', slug: 'sports', image: '', description: '' },
+  { id: '6', name: 'Books', slug: 'books', image: '', description: '' },
+];
+
+const MOCK_PRODUCTS: Product[] = [
+  { id: '1', name: 'iPhone 15 Pro', slug: 'iphone-15-pro', description: '', images: [{ url: 'https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=400', alt: '' }], lowestPrice: 119900, highestPrice: 159900, rating: 4.5, reviewCount: 1234, retailers: [], tags: [], createdAt: '', updatedAt: '' },
+  { id: '2', name: 'Samsung Galaxy S24', slug: 'samsung-galaxy-s24', description: '', images: [{ url: 'https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=400', alt: '' }], lowestPrice: 79999, highestPrice: 99999, rating: 4.3, reviewCount: 890, retailers: [], tags: [], createdAt: '', updatedAt: '' },
+  { id: '3', name: 'MacBook Air M3', slug: 'macbook-air-m3', description: '', images: [{ url: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=400', alt: '' }], lowestPrice: 114900, highestPrice: 149900, rating: 4.7, reviewCount: 2100, retailers: [], tags: [], createdAt: '', updatedAt: '' },
+  { id: '4', name: 'Sony WH-1000XM5', slug: 'sony-wh-1000xm5', description: '', images: [{ url: 'https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?w=400', alt: '' }], lowestPrice: 24990, highestPrice: 34990, rating: 4.6, reviewCount: 4500, retailers: [], tags: [], createdAt: '', updatedAt: '' },
+  { id: '5', name: 'Nike Air Max', slug: 'nike-air-max', description: '', images: [{ url: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400', alt: '' }], lowestPrice: 5995, highestPrice: 9995, rating: 4.4, reviewCount: 3200, retailers: [], tags: [], createdAt: '', updatedAt: '' },
+  { id: '6', name: 'Adidas Ultraboost', slug: 'adidas-ultraboost', description: '', images: [{ url: 'https://images.unsplash.com/photo-1608231387042-66d1773070a5?w=400', alt: '' }], lowestPrice: 7995, highestPrice: 12995, rating: 4.5, reviewCount: 1800, retailers: [], tags: [], createdAt: '', updatedAt: '' },
+];
+
 export default function HomePage() {
   const [deals, setDeals] = useState<Product[]>([]);
   const [trending, setTrending] = useState<Product[]>([]);
@@ -56,7 +75,11 @@ export default function HomePage() {
         if (trendingRes.data?.success) setTrending(trendingRes.data.data || []);
         if (categoriesRes.data?.success) setCategories(categoriesRes.data.data || []);
       } catch (error) {
-        console.error('Failed to fetch homepage data:', error);
+        console.error('API unavailable, using mock data:', error);
+        // Use mock data when API is unavailable
+        setCategories(MOCK_CATEGORIES);
+        setDeals(MOCK_PRODUCTS.slice(0, 4));
+        setTrending(MOCK_PRODUCTS);
       } finally {
         setIsLoading(false);
       }

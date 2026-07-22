@@ -13,6 +13,8 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'react-hot-toast';
+import { useAppDispatch } from '@/hooks';
+import { setUser } from '@/store/slices/authSlice';
 
 const loginSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -24,6 +26,7 @@ type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
   const router = useRouter();
+  const dispatch = useAppDispatch();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -46,6 +49,15 @@ export default function LoginPage() {
       // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 1500));
       console.log('Login data:', data);
+      
+      // Set user in Redux state
+      dispatch(setUser({
+        id: '1',
+        email: data.email,
+        name: data.email.split('@')[0],
+        createdAt: new Date().toISOString(),
+      }));
+      
       toast.success('Welcome back!');
       router.push('/');
     } catch (error) {

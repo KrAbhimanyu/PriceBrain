@@ -15,9 +15,14 @@ import {
   TrendingUp,
   Tag,
   History,
+  Store,
+  UserCircle,
+  Settings,
+  LogOut,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   DropdownMenu,
@@ -29,20 +34,29 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useAppSelector, useAppDispatch } from '@/hooks';
 import { toggleMobileMenu, toggleSearchModal } from '@/store/slices/uiSlice';
-import { logout } from '@/store/slices/authSlice';
+import { logout, switchRole } from '@/store/slices/authSlice';
 import { NAV_LINKS, USER_MENU_LINKS } from '@/constants';
 
 export function Navbar() {
   const pathname = usePathname();
   const dispatch = useAppDispatch();
   const [searchQuery, setSearchQuery] = useState('');
-  const { isAuthenticated, user } = useAppSelector((state) => state.auth);
+  const { isAuthenticated, user, role } = useAppSelector((state) => state.auth);
   const { mobileMenuOpen } = useAppSelector((state) => state.ui);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
       window.location.href = `/search?q=${encodeURIComponent(searchQuery)}`;
+    }
+  };
+
+  const handleSwitchRole = (newRole: 'buyer' | 'seller') => {
+    dispatch(switchRole(newRole));
+    if (newRole === 'seller') {
+      window.location.href = '/seller';
+    } else {
+      window.location.href = '/';
     }
   };
 
@@ -127,8 +141,24 @@ export function Navbar() {
                     <div className="flex flex-col space-y-1">
                       <p className="text-sm font-medium">{user?.name}</p>
                       <p className="text-xs text-muted-foreground">{user?.email}</p>
+                      <Badge variant="outline" className="mt-1 text-xs w-fit">
+                        {role === 'seller' ? 'Seller Mode' : 'Buyer Mode'}
+                      </Badge>
                     </div>
                   </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  
+                  {/* Role Switch */}
+                  <div className="px-2 py-1.5 text-xs text-muted-foreground">Switch Mode</div>
+                  <DropdownMenuItem onClick={() => handleSwitchRole('buyer')}>
+                    <UserCircle className="h-4 w-4 mr-2" />
+                    Switch to Buyer
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleSwitchRole('seller')}>
+                    <Store className="h-4 w-4 mr-2" />
+                    Switch to Seller
+                  </DropdownMenuItem>
+                  
                   <DropdownMenuSeparator />
                   {USER_MENU_LINKS.map((link) => (
                     <DropdownMenuItem key={link.href} asChild>
@@ -142,6 +172,7 @@ export function Navbar() {
                     className="text-destructive focus:text-destructive"
                     onClick={() => dispatch(logout())}
                   >
+                    <LogOut className="h-4 w-4 mr-2" />
                     Log out
                   </DropdownMenuItem>
                 </DropdownMenuContent>

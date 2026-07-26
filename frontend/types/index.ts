@@ -802,3 +802,204 @@ export interface AISellerAnalytics {
   topProducts: Array<{ id: string; name: string; sales: number }>;
   aiInsights: string[];
 }
+
+// Global Experience Types
+
+export type Language = 
+  | 'en' | 'hi' | 'ta' | 'te' | 'kn' | 'ml' | 'bn' | 'mr' | 'gu' | 'pa' 
+  | 'ur' | 'ar' | 'fr' | 'de' | 'es' | 'pt' | 'ja' | 'ko' | 'zh' | 'it' | 'ru';
+
+export type Currency = 'INR' | 'USD' | 'EUR' | 'GBP' | 'AED' | 'SGD' | 'CAD' | 'AUD' | 'JPY' | 'CNY';
+
+export type Region = 
+  | 'india' | 'usa' | 'europe' | 'middle_east' | 'asia' | 'africa' | 'latin_america' | 'oceania';
+
+export type TimeZone = string;
+
+export interface LanguageInfo {
+  code: Language;
+  name: string;
+  nativeName: string;
+  direction: 'ltr' | 'rtl';
+  flag: string;
+}
+
+export interface CurrencyInfo {
+  code: Currency;
+  name: string;
+  symbol: string;
+  exchangeRate: number;
+  lastUpdated: Date;
+}
+
+export interface RegionInfo {
+  code: Region;
+  name: string;
+  festivals: string[];
+  themes: string[];
+  timezone: string;
+}
+
+export interface GlobalPreferences {
+  language: Language;
+  currency: Currency;
+  region: Region;
+  timezone: string;
+  dateFormat: string;
+  numberFormat: string;
+}
+
+export interface ExchangeRate {
+  from: Currency;
+  to: Currency;
+  rate: number;
+  timestamp: Date;
+}
+
+// Accessibility Types
+
+export type ContrastMode = 'normal' | 'high' | 'maximum';
+export type FontSize = 'small' | 'medium' | 'large' | 'extra_large';
+export type LineHeight = 'compact' | 'normal' | 'relaxed';
+export type ColorBlindnessMode = 'none' | 'protanopia' | 'deuteranopia' | 'tritanopia';
+
+export interface AccessibilitySettings {
+  highContrast: boolean;
+  contrastMode: ContrastMode;
+  fontSize: FontSize;
+  lineHeight: LineHeight;
+  letterSpacing: number;
+  dyslexicFont: boolean;
+  reducedMotion: boolean;
+  colorBlindnessMode: ColorBlindnessMode;
+  screenReaderOptimized: boolean;
+  keyboardNavigation: boolean;
+  voiceNavigation: boolean;
+  captionsEnabled: boolean;
+  focusIndicator: boolean;
+  skipLinks: boolean;
+}
+
+export interface FontScalingConfig {
+  base: number;
+  scale: number;
+  lineHeight: Record<LineHeight, number>;
+  fontSize: Record<FontSize, number>;
+}
+
+// AI-SOS Digital Twin Dashboard Types
+
+export interface MarketplaceSimulation {
+  buyers: SimulationEntity;
+  sellers: SimulationEntity;
+  orders: SimulationEntity;
+  products: SimulationEntity;
+  aiAgents: SimulationEntity;
+  deliveries: SimulationEntity;
+  sessions: SimulationEntity;
+}
+
+export interface SimulationEntity {
+  total: number;
+  active: number;
+  healthy: number;
+  warning: number;
+  critical: number;
+}
+
+export interface RevenueForecast {
+  period: 'daily' | 'weekly' | 'monthly' | 'quarterly' | 'annual';
+  predicted: number;
+  lowerBound: number;
+  upperBound: number;
+  confidence: number;
+  drivers: string[];
+  risks: string[];
+  opportunities: string[];
+}
+
+export interface DemandForecast {
+  category: string;
+  predictedDemand: number;
+  currentDemand: number;
+  changePercent: number;
+  confidence: number;
+  seasonal: boolean;
+  festival: boolean;
+  trend: 'up' | 'down' | 'stable';
+}
+
+export interface RiskIntelligence {
+  id: string;
+  type: 'fraud' | 'security' | 'inventory' | 'revenue' | 'infrastructure' | 'churn';
+  title: string;
+  description: string;
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  score: number;
+  impact: string;
+  mitigation: string[];
+  detectedAt: Date;
+  status: 'active' | 'mitigated' | 'resolved' | 'false_positive';
+}
+
+export interface OpportunityIntelligence {
+  id: string;
+  type: 'product' | 'category' | 'market' | 'seller' | 'marketing' | 'automation';
+  title: string;
+  description: string;
+  revenuePotential: number;
+  roi: number;
+  confidence: number;
+  strategicImportance: 'low' | 'medium' | 'high';
+  status: 'discovered' | 'evaluating' | 'approved' | 'implemented';
+  createdAt: Date;
+}
+
+export interface AISOSHealth {
+  status: 'healthy' | 'degraded' | 'critical';
+  uptime: number;
+  activeMissions: number;
+  completedMissions: number;
+  failedMissions: number;
+  avgResponseTime: number;
+  lastHealthCheck: Date;
+}
+
+export interface ExecutiveMetrics {
+  marketplaceHealthScore: number;
+  trustScore: number;
+  aiPerformance: number;
+  totalRevenue: number;
+  revenueGrowth: number;
+  activeUsers: number;
+  activeSellers: number;
+  totalProducts: number;
+  conversionRate: number;
+  avgOrderValue: number;
+  customerSatisfaction: number;
+}
+
+export interface LiveActivity {
+  id: string;
+  type: 'order' | 'user' | 'product' | 'ai_agent' | 'delivery';
+  action: string;
+  location: string;
+  timestamp: Date;
+  metadata?: Record<string, unknown>;
+}
+
+export interface SimulationScenario {
+  id: string;
+  name: string;
+  description: string;
+  type: 'flash_sale' | 'pricing' | 'marketing' | 'expansion' | 'optimization';
+  parameters: Record<string, unknown>;
+  estimatedImpact: {
+    revenue: number;
+    customers: number;
+    sellers: number;
+    risk: number;
+    roi: number;
+  };
+  status: 'draft' | 'simulating' | 'completed' | 'applied';
+}

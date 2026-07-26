@@ -1,7 +1,7 @@
 'use client';
 
 import { ReactNode } from 'react';
-import { QueryProvider, ReduxProvider, ThemeProvider, ToastProvider, PersonalizationProvider } from '@/providers';
+import { QueryProvider, ReduxProvider, ThemeProvider, ToastProvider, PersonalizationProvider, GlobalExperienceProvider } from '@/providers';
 
 export function Providers({ children }: { children: ReactNode }) {
   return (
@@ -10,7 +10,9 @@ export function Providers({ children }: { children: ReactNode }) {
         <ThemeProvider>
           <ToastProvider>
             <PersonalizationProvider>
-              {children}
+              <GlobalExperienceProvider>
+                {children}
+              </GlobalExperienceProvider>
             </PersonalizationProvider>
           </ToastProvider>
         </ThemeProvider>

@@ -1003,3 +1003,203 @@ export interface SimulationScenario {
   };
   status: 'draft' | 'simulating' | 'completed' | 'applied';
 }
+
+// Gamification Types
+
+export type BadgeCategory = 'shopping' | 'ai' | 'social' | 'seller' | 'achievement';
+export type BadgeRarity = 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';
+
+export interface Badge {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  category: BadgeCategory;
+  rarity: BadgeRarity;
+  progress: number;
+  maxProgress: number;
+  isUnlocked: boolean;
+  unlockedAt?: Date;
+  rewards: {
+    points: number;
+    cashback?: number;
+    badge?: string;
+  };
+  requirements: string[];
+}
+
+export interface UserReward {
+  id: string;
+  type: 'points' | 'cashback' | 'coupon' | 'ai_credits' | 'referral' | 'achievement';
+  amount: number;
+  earnedAt: Date;
+  source: string;
+}
+
+export interface ShoppingStreak {
+  type: 'daily_login' | 'daily_search' | 'daily_purchase' | 'ai_interaction';
+  currentStreak: number;
+  longestStreak: number;
+  lastActivity: Date;
+  rewards: {
+    bonusPoints: number;
+    couponCode?: string;
+    exclusiveAccess?: string[];
+  };
+}
+
+export interface Challenge {
+  id: string;
+  title: string;
+  description: string;
+  type: 'buyer' | 'seller' | 'ai';
+  category: string;
+  progress: number;
+  target: number;
+  rewards: {
+    points: number;
+    badge?: string;
+    cashback?: number;
+  };
+  deadline: Date;
+  status: 'active' | 'completed' | 'expired';
+  isAIgenerated: boolean;
+}
+
+export interface SellerGrowthScore {
+  totalScore: number;
+  revenueGrowth: number;
+  customerSatisfaction: number;
+  deliveryPerformance: number;
+  productQuality: number;
+  returnRate: number;
+  reviewQuality: number;
+  aiAdoption: number;
+  inventoryHealth: number;
+  marketingPerformance: number;
+  trends: {
+    daily: number;
+    weekly: number;
+    monthly: number;
+  };
+}
+
+export interface RewardWallet {
+  points: number;
+  cashback: number;
+  coupons: Array<{
+    code: string;
+    discount: number;
+    expiresAt: Date;
+  }>;
+  aiCredits: number;
+  referralRewards: number;
+  achievementRewards: number;
+}
+
+// AI-SOS Operating System Types
+
+export type MissionStatus = 'pending' | 'running' | 'completed' | 'failed' | 'paused' | 'cancelled';
+export type MissionPriority = 'low' | 'medium' | 'high' | 'critical';
+
+export interface AIMission {
+  id: string;
+  name: string;
+  description: string;
+  type: string;
+  status: MissionStatus;
+  priority: MissionPriority;
+  progress: number;
+  assignedAgents: string[];
+  createdAt: Date;
+  startedAt?: Date;
+  completedAt?: Date;
+  estimatedCompletion?: Date;
+  result?: string;
+  error?: string;
+}
+
+export interface AIAgent {
+  id: string;
+  name: string;
+  type: 'executive' | 'worker' | 'specialist';
+  status: 'idle' | 'busy' | 'failed' | 'offline';
+  currentMission?: string;
+  completedMissions: number;
+  failedMissions: number;
+  avgExecutionTime: number;
+  health: number;
+  capabilities: string[];
+}
+
+export interface ExecutiveAI {
+  id: string;
+  name: string;
+  role: string;
+  status: 'active' | 'idle' | 'busy';
+  activeDecisions: number;
+  confidence: number;
+  businessImpact: 'low' | 'medium' | 'high';
+  currentMissions: string[];
+  lastActive: Date;
+}
+
+export interface AIMemory {
+  id: string;
+  key: string;
+  value: string;
+  category: 'preferences' | 'shopping' | 'brands' | 'budget' | 'context' | 'profile' | 'business';
+  confidence: number;
+  lastUpdated: Date;
+  source: 'explicit' | 'learned' | 'inferred';
+  type?: 'short_term' | 'long_term' | 'buyer' | 'seller' | 'project' | 'evolution';
+  connections?: string[];
+  strength?: number;
+  createdAt?: Date;
+}
+
+export interface KnowledgeNode {
+  id: string;
+  type: 'buyer' | 'seller' | 'product' | 'order' | 'category' | 'campaign' | 'warehouse';
+  label: string;
+  properties: Record<string, unknown>;
+  connections: string[];
+}
+
+export interface KnowledgeEdge {
+  source: string;
+  target: string;
+  relationship: string;
+  strength: number;
+}
+
+export interface EventMessage {
+  id: string;
+  type: string;
+  source: string;
+  target?: string;
+  payload: Record<string, unknown>;
+  timestamp: Date;
+  status: 'pending' | 'processed' | 'failed';
+}
+
+export interface TrustMetrics {
+  overallScore: number;
+  riskScore: number;
+  securityScore: number;
+  complianceScore: number;
+  aiConfidence: number;
+  humanApprovals: number;
+  governanceStatus: 'compliant' | 'warning' | 'critical';
+}
+
+export interface DashboardMetric {
+  id: string;
+  label: string;
+  value: number;
+  previousValue: number;
+  change: number;
+  unit: string;
+  trend: 'up' | 'down' | 'stable';
+  isLive: boolean;
+}

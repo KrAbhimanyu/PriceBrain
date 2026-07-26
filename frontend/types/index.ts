@@ -595,3 +595,210 @@ export interface FestivalOutfitSuggestion {
   recommendedItems: string[];
   stylingTips: string[];
 }
+
+// AI Command Center Types
+
+export type AICommand = 
+  | 'ask_brain'
+  | 'ai_chat'
+  | 'ai_search'
+  | 'ai_voice'
+  | 'ai_vision'
+  | 'ai_history'
+  | 'ai_memory'
+  | 'ai_tasks'
+  | 'ai_recommendations'
+  | 'ai_shopping'
+  | 'ai_business'
+  | 'ai_automation'
+  | 'ai_settings';
+
+export interface AICommandItem {
+  id: AICommand;
+  label: string;
+  icon: string;
+  badge?: number;
+  description: string;
+}
+
+export interface AIConversation {
+  id: string;
+  title: string;
+  messages: AIChatMessage[];
+  createdAt: Date;
+  updatedAt: Date;
+  isPinned: boolean;
+  isArchived: boolean;
+  folder?: string;
+  tags: string[];
+}
+
+export interface AIChatMessage {
+  id: string;
+  role: 'user' | 'assistant' | 'system';
+  content: string;
+  timestamp: Date;
+  attachments?: string[];
+  metadata?: Record<string, unknown>;
+}
+
+export interface AIConversationFolder {
+  id: string;
+  name: string;
+  color: string;
+  icon: string;
+  conversationCount: number;
+}
+
+export interface AITask {
+  id: string;
+  title: string;
+  description: string;
+  status: 'pending' | 'running' | 'completed' | 'failed' | 'cancelled';
+  progress: number;
+  createdAt: Date;
+  updatedAt: Date;
+  estimatedCompletion?: Date;
+  agentsWorking?: string[];
+  finalReport?: string;
+  result?: unknown;
+  error?: string;
+}
+
+export interface AIMemory {
+  id: string;
+  key: string;
+  value: string;
+  category: 'preferences' | 'shopping' | 'brands' | 'budget' | 'context' | 'profile' | 'business';
+  confidence: number;
+  lastUpdated: Date;
+  source: 'explicit' | 'learned' | 'inferred';
+}
+
+export interface AIWidget {
+  id: string;
+  type: AIWidgetType;
+  title: string;
+  icon: string;
+  refreshInterval: number;
+  isVisible: boolean;
+  order: number;
+}
+
+export type AIWidgetType = 
+  | 'price_drop'
+  | 'trending_products'
+  | 'ai_deals'
+  | 'flash_sale'
+  | 'recently_compared'
+  | 'budget_progress'
+  | 'wishlist_intelligence'
+  | 'todays_recommendations'
+  | 'seller_analytics'
+  | 'marketplace_health';
+
+export interface PriceDropItem {
+  productId: string;
+  productName: string;
+  productImage: string;
+  previousPrice: number;
+  currentPrice: number;
+  dropPercentage: number;
+  retailer: string;
+  aiRecommendation: 'buy_now' | 'wait' | 'watch';
+  confidenceScore: number;
+}
+
+export interface TrendingProduct {
+  productId: string;
+  productName: string;
+  productImage: string;
+  price: number;
+  originalPrice: number;
+  discount: number;
+  viewCount: number;
+  purchaseCount: number;
+  aiTrendScore: number;
+  category: string;
+  isViral: boolean;
+}
+
+export interface AIDeal {
+  id: string;
+  title: string;
+  description: string;
+  discount: number;
+  originalPrice: number;
+  currentPrice: number;
+  expiresAt: Date;
+  productId: string;
+  productImage: string;
+  retailer: string;
+  dealType: 'flash' | 'bundle' | 'cashback' | 'hidden' | 'ai_savings';
+  aiSavingsScore: number;
+}
+
+export interface FlashSale {
+  id: string;
+  title: string;
+  discount: number;
+  originalPrice: number;
+  salePrice: number;
+  endsAt: Date;
+  stockRemaining: number;
+  totalStock: number;
+  productId: string;
+  productImage: string;
+  retailer: string;
+  aiUrgencyScore: number;
+}
+
+export interface BudgetProgress {
+  monthlyBudget: number;
+  spent: number;
+  remaining: number;
+  savingsGoal: number;
+  currentSavings: number;
+  forecastedSpend: number;
+  categoryBreakdown: Record<string, number>;
+  aiSuggestions: string[];
+}
+
+export interface WishlistIntelligence {
+  productId: string;
+  productName: string;
+  productImage: string;
+  targetPrice: number;
+  currentPrice: number;
+  lowestPrice: number;
+  highestPrice: number;
+  priceChange: number;
+  stockStatus: 'in_stock' | 'low_stock' | 'out_of_stock';
+  aiPriority: number;
+  bestTimeToBuy: 'now' | 'this_week' | 'this_month' | 'wait';
+  priceDropPrediction?: Date;
+}
+
+export interface AIMarketplaceHealth {
+  activeUsers: number;
+  productsTracked: number;
+  totalSavings: number;
+  conversionRate: number;
+  scraperUptime: number;
+  priceAccuracy: number;
+  trendingCategories: string[];
+  healthScore: number;
+}
+
+export interface AISellerAnalytics {
+  totalRevenue: number;
+  revenueChange: number;
+  ordersToday: number;
+  productsListed: number;
+  conversionRate: number;
+  averageRating: number;
+  lowStockAlerts: number;
+  pendingOrders: number;
+  topProducts: Array<{ id: string; name: string; sales: number }>;
+  aiInsights: string[];
+}

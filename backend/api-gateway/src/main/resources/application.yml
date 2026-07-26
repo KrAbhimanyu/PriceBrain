@@ -7,7 +7,167 @@ spring:
 
   cloud:
     gateway:
-      # Global CORS Configuration
+      # ========================
+      # ROUTES CONFIGURATION
+      # ========================
+      routes:
+        # ---- Auth Service (8081) ----
+        - id: auth-service
+          uri: lb://auth-service
+          predicates:
+            - Path=/api/v1/auth/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: authCircuitBreaker
+            - StripPrefix=1
+
+        # ---- User Service (8082) ----
+        - id: user-service
+          uri: lb://user-service
+          predicates:
+            - Path=/api/v1/users/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: authCircuitBreaker
+            - StripPrefix=1
+        - id: user-service-addresses
+          uri: lb://user-service
+          predicates:
+            - Path=/api/v1/addresses/**
+          filters:
+            - StripPrefix=1
+        - id: user-service-preferences
+          uri: lb://user-service
+          predicates:
+            - Path=/api/v1/preferences/**
+          filters:
+            - StripPrefix=1
+
+        # ---- Product Service (8083) ----
+        - id: product-service
+          uri: lb://product-service
+          predicates:
+            - Path=/api/v1/products/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: productCircuitBreaker
+            - StripPrefix=1
+        - id: product-service-categories
+          uri: lb://product-service
+          predicates:
+            - Path=/api/v1/categories/**
+          filters:
+            - StripPrefix=1
+
+        # ---- Order Service (8084) ----
+        - id: order-service
+          uri: lb://order-service
+          predicates:
+            - Path=/api/v1/orders/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: orderCircuitBreaker
+            - StripPrefix=1
+        - id: order-service-shipping
+          uri: lb://order-service
+          predicates:
+            - Path=/api/v1/shipping/**
+          filters:
+            - StripPrefix=1
+
+        # ---- Payment Service (8085) ----
+        - id: payment-service
+          uri: lb://payment-service
+          predicates:
+            - Path=/api/v1/payments/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: paymentCircuitBreaker
+            - StripPrefix=1
+
+        # ---- Cart Service (8086) ----
+        - id: cart-service
+          uri: lb://cart-service
+          predicates:
+            - Path=/api/v1/cart/**
+          filters:
+            - StripPrefix=1
+
+        # ---- Notification Service (8087) ----
+        - id: notification-service
+          uri: lb://notification-service
+          predicates:
+            - Path=/api/v1/notifications/**
+          filters:
+            - StripPrefix=1
+
+        # ---- AI Service (8088) ----
+        - id: ai-service
+          uri: lb://ai-service
+          predicates:
+            - Path=/api/v1/ai/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: productCircuitBreaker
+            - StripPrefix=1
+
+        # ---- Analytics Service (8089) ----
+        - id: analytics-service
+          uri: lb://analytics-service
+          predicates:
+            - Path=/api/v1/analytics/**
+          filters:
+            - StripPrefix=1
+
+        # ---- Search Service (8090) ----
+        - id: search-service
+          uri: lb://search-service
+          predicates:
+            - Path=/api/v1/search/**
+          filters:
+            - StripPrefix=1
+
+        # ---- Inventory Service (8091) ----
+        - id: inventory-service
+          uri: lb://inventory-service
+          predicates:
+            - Path=/api/v1/inventory/**
+          filters:
+            - StripPrefix=1
+
+        # ---- Seller Service (8092) ----
+        - id: seller-service
+          uri: lb://seller-service
+          predicates:
+            - Path=/api/v1/sellers/**
+          filters:
+            - StripPrefix=1
+
+        # ---- Review Service (8093) ----
+        - id: review-service
+          uri: lb://review-service
+          predicates:
+            - Path=/api/v1/reviews/**
+          filters:
+            - StripPrefix=1
+
+        # ---- Wishlist Service (8094) ----
+        - id: wishlist-service
+          uri: lb://wishlist-service
+          predicates:
+            - Path=/api/v1/wishlists/**
+          filters:
+            - StripPrefix=1
+
+      # ========================
+      # GLOBAL CORS CONFIGURATION
+      # ========================
       globalcors:
         corsConfigurations:
           '[/**]':
@@ -15,6 +175,7 @@ spring:
               - "https://pricebrain.com"
               - "https://www.pricebrain.com"
               - "http://localhost:3000"
+              - "http://localhost:5173"
             allowedMethods:
               - GET
               - POST
@@ -27,7 +188,9 @@ spring:
             allowCredentials: true
             maxAge: 3600
 
-      # Default filters applied to all routes
+      # ========================
+      # DEFAULT FILTERS
+      # ========================
       default-filters:
         - DedupeResponseHeader=Vary Access-Control-Allow-Origin Access-Control-Allow-Credentials
         - name: RequestRateLimiter
@@ -36,7 +199,9 @@ spring:
             redis-rate-limiter.burstCapacity: 200
             redis-rate-limiter.requestedTokens: 1
 
-    # Service Discovery
+    # ========================
+    # SERVICE DISCOVERY (Eureka)
+    # ========================
     discovery:
       client:
         simple:
@@ -51,18 +216,24 @@ spring:
               - uri: http://localhost:8084
             payment-service:
               - uri: http://localhost:8085
-            notification-service:
+            cart-service:
               - uri: http://localhost:8086
-            ai-service:
+            notification-service:
               - uri: http://localhost:8087
-            analytics-service:
+            ai-service:
               - uri: http://localhost:8088
-            search-service:
+            analytics-service:
               - uri: http://localhost:8089
-            seller-service:
-              - uri: http://localhost:8091
-            inventory-service:
+            search-service:
               - uri: http://localhost:8090
+            inventory-service:
+              - uri: http://localhost:8091
+            seller-service:
+              - uri: http://localhost:8092
+            review-service:
+              - uri: http://localhost:8093
+            wishlist-service:
+              - uri: http://localhost:8094
 
   # Redis Configuration for Rate Limiting
   data:

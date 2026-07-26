@@ -1,0 +1,62 @@
+server:
+  port: 8089
+
+spring:
+  application:
+    name: search-service
+
+  data:
+    mongodb:
+      uri: mongodb://${MONGODB_HOST:localhost}:${MONGODB_PORT:27017}/pricebrain_search
+      database: pricebrain_search
+
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    consumer:
+      group-id: search-service
+      auto-offset-reset: earliest
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_SERVER:http://localhost:8761/eureka}
+
+# OpenSearch Configuration (for full-text search)
+opensearch:
+  hosts: ${OPENSEARCH_HOSTS:localhost:9200}
+  username: ${OPENSEARCH_USERNAME:}
+  password: ${OPENSEARCH_PASSWORD:}
+
+# AI Search Configuration
+ai:
+  embeddings:
+    enabled: ${AI_EMBEDDINGS_ENABLED:false}
+    provider: ${AI_EMBEDDINGS_PROVIDER:openai}
+    api-key: ${AI_EMBEDDINGS_API_KEY:}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, metrics
+
+logging:
+  level:
+    root: INFO
+    com.pricebrain: DEBUG
+
+---
+spring:
+  config:
+    activate:
+      on-profile: development
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration
+eureka:
+  client:
+    enabled: false

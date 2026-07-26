@@ -1,0 +1,176 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+
+  cloud:
+    gateway:
+      # Global CORS Configuration
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins:
+              - "https://pricebrain.com"
+              - "https://www.pricebrain.com"
+              - "http://localhost:3000"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - PATCH
+              - OPTIONS
+            allowedHeaders:
+              - "*"
+            allowCredentials: true
+            maxAge: 3600
+
+      # Default filters applied to all routes
+      default-filters:
+        - DedupeResponseHeader=Vary Access-Control-Allow-Origin Access-Control-Allow-Credentials
+        - name: RequestRateLimiter
+          args:
+            redis-rate-limiter.replenishRate: 100
+            redis-rate-limiter.burstCapacity: 200
+            redis-rate-limiter.requestedTokens: 1
+
+    # Service Discovery
+    discovery:
+      client:
+        simple:
+          instances:
+            auth-service:
+              - uri: http://localhost:8081
+            user-service:
+              - uri: http://localhost:8082
+            product-service:
+              - uri: http://localhost:8083
+            order-service:
+              - uri: http://localhost:8084
+            payment-service:
+              - uri: http://localhost:8085
+            notification-service:
+              - uri: http://localhost:8086
+            ai-service:
+              - uri: http://localhost:8087
+            analytics-service:
+              - uri: http://localhost:8088
+            search-service:
+              - uri: http://localhost:8089
+            seller-service:
+              - uri: http://localhost:8091
+            inventory-service:
+              - uri: http://localhost:8090
+
+  # Redis Configuration for Rate Limiting
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: ${REDIS_PASSWORD:}
+      timeout: 2000ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+
+# Management & Monitoring
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, metrics, prometheus
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: when_authorized
+    prometheus:
+      enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
+
+# Security Configuration
+security:
+  jwt:
+    secret: ${JWT_SECRET:default-gateway-secret-key-for-development-change-in-prod}
+    public-key: ${JWT_PUBLIC_KEY:}
+    issuer: PriceBrain
+
+# Logging
+logging:
+  level:
+    root: INFO
+    org.springframework.cloud.gateway: DEBUG
+    com.pricebrain: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%X{correlationId}] [%X{requestId}] %-5level %logger{36} - %msg%n"
+
+# Resilience4j Circuit Breaker
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        slidingWindowType: COUNT_BASED
+        slidingWindowSize: 10
+        failureRateThreshold: 50
+        waitDurationInOpenState: 30s
+        permittedNumberOfCallsInHalfOpenState: 5
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+    instances:
+      authCircuitBreaker:
+        slidingWindowSize: 5
+        failureRateThreshold: 80
+      productCircuitBreaker:
+        slidingWindowSize: 20
+        failureRateThreshold: 50
+      orderCircuitBreaker:
+        slidingWindowSize: 10
+        failureRateThreshold: 50
+      paymentCircuitBreaker:
+        slidingWindowSize: 5
+        failureRateThreshold: 30
+
+---
+# Development Profile
+spring:
+  config:
+    activate:
+      on-profile: development
+
+  cloud:
+    discovery:
+      client:
+        simple:
+          enabled: false
+
+logging:
+  level:
+    root: INFO
+    org.springframework.cloud.gateway: TRACE
+    com.pricebrain: TRACE
+
+---
+# Production Profile  
+spring:
+  config:
+    activate:
+      on-profile: production
+
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD}
+
+  cloud:
+    discovery:
+      enabled: true
+
+management:
+  tracing:
+    sampling:
+      probability: 0.1

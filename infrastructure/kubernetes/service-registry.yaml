@@ -1,0 +1,87 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: service-registry
+  namespace: pricebrain
+  labels:
+    app: service-registry
+    tier: infrastructure
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: service-registry
+  template:
+    metadata:
+      labels:
+        app: service-registry
+        tier: infrastructure
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8761"
+        prometheus.io/path: "/actuator/prometheus"
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - service-registry
+                topologyKey: kubernetes.io/hostname
+      containers:
+        - name: service-registry
+          image: ghcr.io/pricebrain/service-registry:1.0.0-SNAPSHOT
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 8761
+              protocol: TCP
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: http
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "production"
+            - name: EUREKA_INSTANCE_HOSTNAME
+              value: "service-registry"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-registry
+  namespace: pricebrain
+  labels:
+    app: service-registry
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 8761
+      targetPort: http
+  selector:
+    app: service-registry

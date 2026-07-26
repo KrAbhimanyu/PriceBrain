@@ -379,3 +379,219 @@ export interface ExecutiveMetric {
   changePercent: number;
   trend: TrendData[];
 }
+
+// Fashion & AI Stylist Types
+
+export type Gender = 'male' | 'female' | 'unisex';
+export type AgeGroup = 'teen' | 'young_adult' | 'adult' | 'middle_aged' | 'senior';
+export type Season = 'spring' | 'summer' | 'monsoon' | 'autumn' | 'winter';
+export type BodyType = 'slim' | 'athletic' | 'average' | 'plus_size';
+export type SkinTone = 'fair' | 'wheatish' | 'medium' | 'dark';
+export type Occasion = 
+  | 'casual' 
+  | 'formal' 
+  | 'office' 
+  | 'wedding' 
+  | 'date' 
+  | 'party' 
+  | 'sports' 
+  | 'beach' 
+  | 'festival' 
+  | 'college' 
+  | 'interview'
+  | 'date_night'
+  | 'reception'
+  | 'engagement'
+  | 'mehendi'
+  | 'ceremony';
+export type OutfitCategory = 'best_selling' | 'budget_friendly' | 'mid_range';
+
+export interface UserStyleProfile {
+  gender: Gender;
+  ageGroup: AgeGroup;
+  bodyType: BodyType;
+  skinTone: SkinTone;
+  preferredColors: string[];
+  preferredStyles: string[];
+  preferredBrands: string[];
+  budget: { min: number; max: number };
+  wardrobeItems: WardrobeItem[];
+  dislikedItems: string[];
+  occasions: Occasion[];
+  size: string;
+}
+
+export interface WardrobeItem {
+  id: string;
+  name: string;
+  category: string;
+  color: string;
+  brand?: string;
+  imageUrl?: string;
+  addedAt: Date;
+}
+
+export interface FashionContext {
+  userProfile?: Partial<UserStyleProfile>;
+  occasion?: Occasion;
+  location?: string;
+  weather?: {
+    temperature: number;
+    condition: 'sunny' | 'cloudy' | 'rainy' | 'humid' | 'cold';
+  };
+  budget?: { min?: number; max?: number };
+  gender?: Gender;
+  existingItem?: string;
+  preferences?: string[];
+}
+
+export interface OutfitItem {
+  id: string;
+  product: Product;
+  slot: OutfitSlot;
+  price: number;
+  originalPrice: number;
+  discount: number;
+  isPrimary: boolean;
+  matchScore: number;
+  retailer: Retailer;
+}
+
+export type OutfitSlot = 
+  | 'top'
+  | 'bottom'
+  | 'dress'
+  | 'outerwear'
+  | 'footwear'
+  | 'accessory'
+  | 'watch'
+  | 'jewelry'
+  | 'bag'
+  | 'belt'
+  | 'sunglasses'
+  | 'hat'
+  | 'scarf'
+  | 'perfume'
+  | 'socks'
+  | 'tie'
+  | 'pocket_square';
+
+export interface Outfit {
+  id: string;
+  name: string;
+  description: string;
+  category: OutfitCategory;
+  occasion: Occasion;
+  items: OutfitItem[];
+  totalPrice: number;
+  originalTotalPrice: number;
+  totalDiscount: number;
+  aiExplanation: AIOutfitExplanation;
+  ratings: OutfitRatings;
+  crossSellItems: OutfitItem[];
+  isComplete: boolean;
+  imageUrl?: string;
+  createdAt: Date;
+}
+
+export interface AIOutfitExplanation {
+  whyItSuits: string;
+  colorMatching: string;
+  budgetFit: string;
+  styleNotes: string;
+  trendAlignment: string;
+  bodyTypeSuitability: string;
+  skinToneRecommendation: string;
+  weatherAppropriate: string;
+}
+
+export interface OutfitRatings {
+  style: number;      // 1-10
+  comfort: number;    // 1-10
+  trendScore: number; // 1-10
+  popularity: number;  // 1-10
+  aiConfidence: number; // 1-10
+  overall: number;     // 1-10
+}
+
+export interface FashionChatMessage {
+  id: string;
+  role: 'user' | 'assistant' | 'system';
+  content: string;
+  timestamp: Date;
+  attachments?: string[];
+  context?: FashionContext;
+  recommendations?: Outfit[];
+  suggestedQuestions?: string[];
+}
+
+export interface FashionRecommendationRequest {
+  userInput: string;
+  context?: FashionContext;
+  includeCategories?: OutfitCategory[];
+  limit?: number;
+  userId?: string;
+}
+
+export interface FashionRecommendationResponse {
+  success: boolean;
+  outfits: Outfit[];
+  totalCount: number;
+  context: FashionContext;
+  suggestedFollowUps: string[];
+  missingInfo?: string[];
+}
+
+export interface OutfitComparison {
+  outfits: Outfit[];
+  comparedAspects: ComparisonAspect[];
+}
+
+export interface ComparisonAspect {
+  name: string;
+  values: Record<string, string | number>;
+  winner: string;
+}
+
+export interface MixMatchSuggestion {
+  baseItem: OutfitItem;
+  suggestions: {
+    item: OutfitItem;
+    matchReason: string;
+    matchScore: number;
+    occasions: Occasion[];
+  }[];
+}
+
+export interface ColorCombination {
+  primary: string;
+  secondary: string;
+  accent: string;
+  neutral: string;
+  whyItWorks: string;
+  occasions: Occasion[];
+}
+
+export interface CelebrityInspiredLook {
+  celebrity: string;
+  event: string;
+  outfitDescription: string;
+  similarProducts: Product[];
+  howToAchieve: string;
+}
+
+export interface SeasonalSuggestion {
+  season: Season;
+  trendingStyles: string[];
+  mustHaveItems: string[];
+  colors: string[];
+  tips: string[];
+}
+
+export interface FestivalOutfitSuggestion {
+  festival: string;
+  tradition: string;
+  outfitDescription: string;
+  recommendedItems: string[];
+  stylingTips: string[];
+}

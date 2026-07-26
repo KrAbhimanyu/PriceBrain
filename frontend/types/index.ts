@@ -1,10 +1,13 @@
+export type UserRole = 'buyer' | 'seller' | 'admin';
+
 export interface User {
   id: string;
   email: string;
   name: string;
   avatar?: string;
   phone?: string;
-  role: 'user' | 'admin';
+  role: UserRole;
+  sellerVerified?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -276,4 +279,103 @@ export interface Toast {
   title: string;
   message?: string;
   duration?: number;
+}
+
+// Personalization Types
+export interface RecentlyViewedProduct {
+  product: Product;
+  viewedAt: Date;
+}
+
+export interface SmartCollection {
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+  icon: string;
+  products: Product[];
+  productCount: number;
+}
+
+export interface AIRecommendationItem {
+  id: string;
+  product: Product;
+  reason: string;
+  confidence: number;
+  type: 'similar' | 'trending' | 'bestseller' | 'personalized' | 'price_drop' | 'back_in_stock';
+}
+
+export interface ContinueShoppingItem {
+  product: Product;
+  lastViewed: Date;
+  priceChange?: number;
+}
+
+export interface SellerDailyGoal {
+  id: string;
+  type: 'revenue' | 'orders' | 'products' | 'customers';
+  target: number;
+  current: number;
+  progress: number;
+  deadline: Date;
+}
+
+export interface SellerRevenueCard {
+  id: string;
+  title: string;
+  value: number;
+  change: number;
+  changeType: 'increase' | 'decrease' | 'neutral';
+  period: string;
+}
+
+export interface SellerBusinessInsight {
+  id: string;
+  type: 'opportunity' | 'alert' | 'tip' | 'trend';
+  title: string;
+  description: string;
+  impact: 'high' | 'medium' | 'low';
+  actionUrl?: string;
+  createdAt: Date;
+}
+
+export interface SellerAISuggestion {
+  id: string;
+  title: string;
+  description: string;
+  potentialImpact: string;
+  category: 'pricing' | 'inventory' | 'marketing' | 'product';
+  actionLabel: string;
+}
+
+export interface MarketplaceHealthMetric {
+  id: string;
+  name: string;
+  value: number;
+  target: number;
+  status: 'healthy' | 'warning' | 'critical';
+  trend: 'up' | 'down' | 'stable';
+  changePercent: number;
+}
+
+export interface LiveAlert {
+  id: string;
+  type: 'scraper' | 'system' | 'user' | 'revenue';
+  severity: 'info' | 'warning' | 'critical';
+  title: string;
+  message: string;
+  timestamp: Date;
+  isRead: boolean;
+  actionUrl?: string;
+}
+
+export interface ExecutiveMetric {
+  id: string;
+  category: 'revenue' | 'users' | 'products' | 'engagement';
+  title: string;
+  value: number;
+  formattedValue: string;
+  change: number;
+  changePercent: number;
+  trend: TrendData[];
 }

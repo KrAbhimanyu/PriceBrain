@@ -39,21 +39,21 @@ const categoryRoutes: Record<string, string> = {
 
 // Mock data for when API is unavailable
 const MOCK_CATEGORIES: Category[] = [
-  { id: '1', name: 'Electronics', slug: 'electronics', image: '', description: '' },
-  { id: '2', name: 'Fashion', slug: 'fashion', image: '', description: '' },
-  { id: '3', name: 'Home & Kitchen', slug: 'home-kitchen', image: '', description: '' },
-  { id: '4', name: 'Beauty', slug: 'beauty', image: '', description: '' },
-  { id: '5', name: 'Sports', slug: 'sports', image: '', description: '' },
-  { id: '6', name: 'Books', slug: 'books', image: '', description: '' },
+  { id: '1', name: 'Electronics', slug: 'electronics', isActive: true },
+  { id: '2', name: 'Fashion', slug: 'fashion', isActive: true },
+  { id: '3', name: 'Home & Kitchen', slug: 'home-kitchen', isActive: true },
+  { id: '4', name: 'Beauty', slug: 'beauty', isActive: true },
+  { id: '5', name: 'Sports', slug: 'sports', isActive: true },
+  { id: '6', name: 'Books', slug: 'books', isActive: true },
 ];
 
 const MOCK_PRODUCTS: Product[] = [
-  { id: '1', name: 'iPhone 15 Pro', slug: 'iphone-15-pro', description: '', images: [{ url: 'https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=400', alt: '' }], lowestPrice: 119900, highestPrice: 159900, rating: 4.5, reviewCount: 1234, retailers: [], tags: [], createdAt: '', updatedAt: '' },
-  { id: '2', name: 'Samsung Galaxy S24', slug: 'samsung-galaxy-s24', description: '', images: [{ url: 'https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=400', alt: '' }], lowestPrice: 79999, highestPrice: 99999, rating: 4.3, reviewCount: 890, retailers: [], tags: [], createdAt: '', updatedAt: '' },
-  { id: '3', name: 'MacBook Air M3', slug: 'macbook-air-m3', description: '', images: [{ url: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=400', alt: '' }], lowestPrice: 114900, highestPrice: 149900, rating: 4.7, reviewCount: 2100, retailers: [], tags: [], createdAt: '', updatedAt: '' },
-  { id: '4', name: 'Sony WH-1000XM5', slug: 'sony-wh-1000xm5', description: '', images: [{ url: 'https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?w=400', alt: '' }], lowestPrice: 24990, highestPrice: 34990, rating: 4.6, reviewCount: 4500, retailers: [], tags: [], createdAt: '', updatedAt: '' },
-  { id: '5', name: 'Nike Air Max', slug: 'nike-air-max', description: '', images: [{ url: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400', alt: '' }], lowestPrice: 5995, highestPrice: 9995, rating: 4.4, reviewCount: 3200, retailers: [], tags: [], createdAt: '', updatedAt: '' },
-  { id: '6', name: 'Adidas Ultraboost', slug: 'adidas-ultraboost', description: '', images: [{ url: 'https://images.unsplash.com/photo-1608231387042-66d1773070a5?w=400', alt: '' }], lowestPrice: 7995, highestPrice: 12995, rating: 4.5, reviewCount: 1800, retailers: [], tags: [], createdAt: '', updatedAt: '' },
+  { id: '1', name: 'iPhone 15 Pro', slug: 'iphone-15-pro', description: 'Latest Apple smartphone', images: [{ id: '1', url: 'https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=400', alt: 'iPhone 15 Pro', isPrimary: true, order: 1 }], brand: { id: '1', name: 'Apple', slug: 'apple', isActive: true }, category: MOCK_CATEGORIES[0], retailerPrices: [], specifications: [], rating: 4.5, reviewCount: 1234, inStock: true, isFeatured: true, isActive: true, lowestPrice: 119900, createdAt: new Date(), updatedAt: new Date() },
+  { id: '2', name: 'Samsung Galaxy S24', slug: 'samsung-galaxy-s24', description: 'Samsung flagship smartphone', images: [{ id: '1', url: 'https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=400', alt: 'Galaxy S24', isPrimary: true, order: 1 }], brand: { id: '2', name: 'Samsung', slug: 'samsung', isActive: true }, category: MOCK_CATEGORIES[0], retailerPrices: [], specifications: [], rating: 4.3, reviewCount: 890, inStock: true, isFeatured: true, isActive: true, lowestPrice: 79999, createdAt: new Date(), updatedAt: new Date() },
+  { id: '3', name: 'MacBook Air M3', slug: 'macbook-air-m3', description: 'Apple laptop with M3 chip', images: [{ id: '1', url: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=400', alt: 'MacBook Air', isPrimary: true, order: 1 }], brand: { id: '1', name: 'Apple', slug: 'apple', isActive: true }, category: MOCK_CATEGORIES[0], retailerPrices: [], specifications: [], rating: 4.7, reviewCount: 2100, inStock: true, isFeatured: true, isActive: true, lowestPrice: 114900, createdAt: new Date(), updatedAt: new Date() },
+  { id: '4', name: 'Sony WH-1000XM5', slug: 'sony-wh-1000xm5', description: 'Premium noise-canceling headphones', images: [{ id: '1', url: 'https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?w=400', alt: 'Sony headphones', isPrimary: true, order: 1 }], brand: { id: '3', name: 'Sony', slug: 'sony', isActive: true }, category: MOCK_CATEGORIES[0], retailerPrices: [], specifications: [], rating: 4.6, reviewCount: 4500, inStock: true, isFeatured: true, isActive: true, lowestPrice: 24990, createdAt: new Date(), updatedAt: new Date() },
+  { id: '5', name: 'Nike Air Max', slug: 'nike-air-max', description: 'Classic Nike sneakers', images: [{ id: '1', url: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400', alt: 'Nike Air Max', isPrimary: true, order: 1 }], brand: { id: '4', name: 'Nike', slug: 'nike', isActive: true }, category: MOCK_CATEGORIES[1], retailerPrices: [], specifications: [], rating: 4.4, reviewCount: 3200, inStock: true, isFeatured: true, isActive: true, lowestPrice: 5995, createdAt: new Date(), updatedAt: new Date() },
+  { id: '6', name: 'Adidas Ultraboost', slug: 'adidas-ultraboost', description: 'Premium running shoes', images: [{ id: '1', url: 'https://images.unsplash.com/photo-1608231387042-66d1773070a5?w=400', alt: 'Adidas Ultraboost', isPrimary: true, order: 1 }], brand: { id: '5', name: 'Adidas', slug: 'adidas', isActive: true }, category: MOCK_CATEGORIES[1], retailerPrices: [], specifications: [], rating: 4.5, reviewCount: 1800, inStock: true, isFeatured: true, isActive: true, lowestPrice: 7995, createdAt: new Date(), updatedAt: new Date() },
 ];
 
 export default function HomePage() {

@@ -10,7 +10,7 @@ export class CompareService {
       productIds.map((id) => this.productsService.findOne(id).catch(() => null))
     );
 
-    const validProducts = products.filter((p) => p !== null);
+    const validProducts = products.filter((p): p is NonNullable<typeof p> => p !== null);
 
     // Extract specifications for comparison
     const allSpecs = new Map<string, Map<string, string>>();

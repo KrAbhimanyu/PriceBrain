@@ -23,7 +23,7 @@ export class AuthService {
         ...tokens,
       };
     } catch (error) {
-      if (error.code === '23505') {
+      if ((error as any).code === '23505') {
         throw new ConflictException('User with this email already exists');
       }
       throw error;

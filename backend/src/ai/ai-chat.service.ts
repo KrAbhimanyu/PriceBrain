@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { ChatConversation } from './entities/chat-conversation.entity';
 import { ChatMessage } from './entities/chat-message.entity';
 import { AiShoppingService } from './ai-shopping.service';
+import { RAGOrchestrationService } from '../rag/services/rag-orchestration.service';
 
 @Injectable()
 export class AiChatService {
@@ -15,6 +16,7 @@ export class AiChatService {
     @InjectRepository(ChatMessage)
     private messageRepository: Repository<ChatMessage>,
     private aiShoppingService: AiShoppingService,
+    private ragService: RAGOrchestrationService,
   ) {}
 
   // ============ Conversations ============
@@ -84,8 +86,28 @@ export class AiChatService {
     const history = await this.getMessageHistory(conversationId);
     const historyForAI = history.map(m => ({ role: m.role, content: m.content }));
 
-    // Generate AI response
-    const aiResponse = await this.aiShoppingService.generateChatResponse(content, historyForAI);
+    // Use RAG for enhanced response
+    const ragResponse = await this.ragService.query({
+      query: content,
+      userId,
+      context: {
+        conversationType: conversation.type,
+        conversationContext: conversation.context,
+      },
+    });
+
+    // If RAG found relevant context, use it; otherwise fall back to standard AI
+    let aiResponse;
+    if (ragResponse.sources && ragResponse.sources.length > 0) {
+      aiResponse = {
+        response: ragResponse.answer,
+        action: 'rag_enhanced',
+        products: ragResponse.sources.map((s: any) => s.id),
+      };
+    } else {
+      // Fall back to standard AI response
+      aiResponse = await this.aiShoppingService.generateChatResponse(content, historyForAI);
+    }
 
     // Save assistant message
     const assistantMessage = this.messageRepository.create({
@@ -93,8 +115,10 @@ export class AiChatService {
       role: 'assistant',
       content: aiResponse.response,
       metadata: {
-        action: aiResponse.action as 'search' | 'recommend' | 'compare' | 'analyze',
+        action: aiResponse.action as 'search' | 'recommend' | 'compare' | 'analyze' | 'rag_enhanced',
         products: aiResponse.products,
+        sources: ragResponse.sources,
+        responseTime: ragResponse.responseTime,
       },
     });
     await this.messageRepository.save(assistantMessage);

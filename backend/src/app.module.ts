@@ -24,6 +24,32 @@ import { AnalyticsModule } from './analytics/analytics.module';
 import { ScraperModule } from './scraper/scraper.module';
 import { QueueModule } from './queue/queue.module';
 import { AiModule } from './ai/ai.module';
+// Phase 6 - Autonomous Commerce Intelligence Platform
+import { MissionsModule } from './missions/missions.module';
+import { WorkflowsModule } from './workflows/workflows.module';
+import { ApprovalsModule } from './approvals/approvals.module';
+import { PoliciesModule } from './policies/policies.module';
+import { AutomationModule } from './automation/automation.module';
+import { MonitoringModule } from './monitoring/monitoring.module';
+import { PluginsModule } from './plugins/plugins.module';
+import { ExecutionModule } from './execution/execution.module';
+import { DecisionModule } from './decision/decision.module';
+// Phase 7 - AI Commerce Operating System (AI-COS)
+import { KernelModule } from './kernel/kernel.module';
+import { EventMeshModule } from './event-mesh/event-mesh.module';
+import { ToolBusModule } from './tool-bus/tool-bus.module';
+import { MarketplaceModule } from './marketplace/marketplace.module';
+import { EnterpriseModule } from './enterprise/enterprise.module';
+// Phase 8 - AI Organization Operating System (AI-OOS)
+import { ExecutiveModule } from './executive/executive.module';
+import { DigitalTwinModule } from './digital-twin/digital-twin.module';
+import { SimulationModule } from './simulation/simulation.module';
+import { ConstitutionModule } from './constitution/constitution.module';
+import { GovernanceModule } from './governance/governance.module';
+import { EnterpriseMemoryModule } from './enterprise-memory/enterprise-memory.module';
+import { OrganizationAnalyticsModule } from './organization-analytics/organization-analytics.module';
+// Common
+import { ObservabilityModule } from './common/observability/observability.module';
 
 @Module({
   imports: [
@@ -42,8 +68,11 @@ import { AiModule } from './ai/ai.module';
         password: configService.get('DATABASE_PASSWORD', 'password'),
         database: configService.get('DATABASE_NAME', 'pricebrain'),
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
-        synchronize: configService.get('NODE_ENV') === 'development',
-        logging: configService.get('NODE_ENV') === 'development',
+        // NEVER synchronize in production - use migrations only
+        synchronize: false,
+        logging: configService.get('NODE_ENV') === 'development' ? ['query', 'error', 'warn'] : ['error'],
+        migrationsRun: true, // Run migrations on startup
+        migrations: [__dirname + '/migrations/*{.ts,.js}'],
       }),
     }),
     ScheduleModule.forRoot(),
@@ -71,6 +100,32 @@ import { AiModule } from './ai/ai.module';
     AnalyticsModule,
     ScraperModule,
     AiModule,
+    // Phase 6 Modules
+    MissionsModule,
+    WorkflowsModule,
+    ApprovalsModule,
+    PoliciesModule,
+    AutomationModule,
+    MonitoringModule,
+    PluginsModule,
+    ExecutionModule,
+    DecisionModule,
+    // Phase 7 Modules - AI Commerce Operating System
+    KernelModule,
+    EventMeshModule,
+    ToolBusModule,
+    MarketplaceModule,
+    EnterpriseModule,
+    // Phase 8 Modules - AI Organization Operating System
+    ExecutiveModule,
+    DigitalTwinModule,
+    SimulationModule,
+    ConstitutionModule,
+    GovernanceModule,
+    EnterpriseMemoryModule,
+    OrganizationAnalyticsModule,
+    // Observability
+    ObservabilityModule,
   ],
   providers: [
     {

@@ -41,6 +41,32 @@ jobs:
     name: Unit Tests
     runs-on: ubuntu-latest
     needs: lint
+    
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: pricebrain_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - uses: actions/checkout@v4
       
@@ -54,18 +80,65 @@ jobs:
       - name: Install dependencies
         run: npm ci
       
-      - name: Run backend tests
+      - name: Run backend tests with coverage
         working-directory: ./backend
-        run: npm run test
+        run: npm run test:cov
+        env:
+          DATABASE_HOST: localhost
+          DATABASE_PORT: 5432
+          DATABASE_USER: postgres
+          DATABASE_PASSWORD: postgres
+          DATABASE_NAME: pricebrain_test
+          NODE_ENV: test
+          REDIS_HOST: localhost
+          REDIS_PORT: 6379
       
       - name: Run frontend tests
         working-directory: ./frontend
-        run: npm run test
+        run: npm run test -- --coverage
+        env:
+          NODE_ENV: test
+      
+      - name: Upload backend coverage
+        uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: backend-coverage
+          path: backend/coverage
+          retention-days: 7
+      
+      - name: Upload frontend coverage
+        uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: frontend-coverage
+          path: frontend/coverage
+          retention-days: 7
+
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run npm audit
+        run: npm audit --audit-level=moderate || true
 
   build:
     name: Build Images
     runs-on: ubuntu-latest
-    needs: test
+    needs: [test, security]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     steps:
       - uses: actions/checkout@v4
@@ -97,21 +170,48 @@ jobs:
           cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/pricebrain-web:buildcache
           cache-to: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/pricebrain-web:buildcache,mode=max
 
-  deploy:
-    name: Deploy
+  deploy-staging:
+    name: Deploy to Staging
     runs-on: ubuntu-latest
-    needs: build
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [build]
+    if: github.ref == 'refs/heads/develop'
+    environment:
+      name: staging
+      url: https://staging.pricebrain.example.com
     steps:
       - uses: actions/checkout@v4
       
-      - name: Deploy to server
+      - name: Deploy to staging server
         uses: appleboy/ssh-action@v1
         with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
+          host: ${{ secrets.STAGING_SERVER_HOST }}
+          username: ${{ secrets.STAGING_SERVER_USER }}
+          key: ${{ secrets.STAGING_SERVER_SSH_KEY }}
+          script: |
+            cd /opt/pricebrain-staging
+            docker-compose pull
+            docker-compose up -d --remove-orphans
+            docker image prune -f
+
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [build]
+    if: github.ref == 'refs/heads/main'
+    environment:
+      name: production
+      url: https://pricebrain.example.com
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Deploy to production server
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.PRODUCTION_SERVER_HOST }}
+          username: ${{ secrets.PRODUCTION_SERVER_USER }}
+          key: ${{ secrets.PRODUCTION_SERVER_SSH_KEY }}
           script: |
             cd /opt/pricebrain
             docker-compose pull
-            docker-compose up -d
+            docker-compose up -d --remove-orphans
+            docker image prune -f

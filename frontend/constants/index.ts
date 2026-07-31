@@ -56,11 +56,17 @@ export const NAV_LINKS = [
   { href: '/search', label: 'Search' },
   { href: '/deals', label: 'Deals' },
   { href: '/categories', label: 'Categories' },
+  { href: '/dashboard', label: 'Dashboard', icon: 'Rocket' },
+  { href: '/missions', label: 'Missions', icon: 'Target' },
   { href: '/about', label: 'About' },
 ] as const;
 
 export const USER_MENU_LINKS = [
   { href: '/profile', label: 'Profile', icon: 'User' },
+  { href: '/dashboard', label: 'Mission Control', icon: 'Rocket' },
+  { href: '/missions', label: 'My Missions', icon: 'Target' },
+  { href: '/approvals', label: 'Approvals', icon: 'Shield' },
+  { href: '/automation', label: 'Automations', icon: 'Zap' },
   { href: '/seller', label: 'Seller Dashboard', icon: 'Store' },
   { href: '/wishlist', label: 'Wishlist', icon: 'Heart' },
   { href: '/orders', label: 'Price Alerts', icon: 'Bell' },

@@ -13,13 +13,17 @@ import {
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AskBrainCoreService, AskBrainQuery, AskBrainResponse } from './services/askbrain-core.service';
+import { SituationIntelligenceService, SituationAnalysis } from './services/situation-intelligence.service';
 import { RecommendationAction } from './entities/shopping-intelligence.entity';
 import { MissionType, MissionStatus } from './entities/life-intelligence.entity';
 
 @ApiTags('AskBrain - AI Commerce Intelligence')
 @Controller('askbrain')
 export class AskBrainController {
-  constructor(private readonly askbrainService: AskBrainCoreService) {}
+  constructor(
+    private readonly askbrainService: AskBrainCoreService,
+    private readonly situationService: SituationIntelligenceService,
+  ) {}
 
   // ============ CORE QUERY ============
 
@@ -42,6 +46,73 @@ export class AskBrainController {
       missionId: body.missionId,
       mode: body.mode,
     });
+  }
+
+  // ============ SITUATION ANALYSIS ============
+
+  @Post('situation')
+  @ApiOperation({ summary: 'Analyze a real-life situation and generate complete shopping solution' })
+  async analyzeSituation(
+    @Body()
+    body: {
+      situation: string;
+      userContext?: any;
+    },
+    @Request() req: any,
+  ): Promise<SituationAnalysis> {
+    // Get full user context if available
+    let userContext = body.userContext || {};
+    if (req.user?.id) {
+      const storedContext = await this.askbrainService.getUserContext(req.user.id);
+      userContext = { ...storedContext, ...userContext };
+    }
+
+    return this.situationService.analyzeSituation(body.situation, userContext);
+  }
+
+  @Post('situation/outfit')
+  @ApiOperation({ summary: 'Get complete outfit recommendation for a situation' })
+  async getSituationOutfit(
+    @Body()
+    body: {
+      situation: string;
+      budget?: number;
+      style?: string;
+    },
+  ) {
+    return this.situationService.analyzeSituation(
+      `I need an outfit for ${body.situation}`,
+      { budget: body.budget, stylePreferences: [body.style] }
+    );
+  }
+
+  @Post('situation/custom')
+  @ApiOperation({ summary: 'Handle any custom situation described by user' })
+  async handleCustomSituation(
+    @Body()
+    body: {
+      description: string;
+      details?: {
+        location?: string;
+        season?: string;
+        budget?: string;
+        participants?: string[];
+      };
+    },
+    @Request() req: any,
+  ): Promise<SituationAnalysis> {
+    // Build comprehensive query from description
+    let query = body.description;
+    if (body.details?.location) query += ` in ${body.details.location}`;
+    if (body.details?.season) query += ` during ${body.details.season}`;
+    if (body.details?.budget) query += ` with budget ${body.details.budget}`;
+
+    let userContext = {};
+    if (req.user?.id) {
+      userContext = await this.askbrainService.getUserContext(req.user.id);
+    }
+
+    return this.situationService.analyzeSituation(query, userContext);
   }
 
   // ============ USER CONTEXT ============

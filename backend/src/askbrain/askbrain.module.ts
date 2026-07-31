@@ -4,6 +4,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ConfigModule } from '@nestjs/config';
 import { AskBrainController } from './askbrain.controller';
 import { AskBrainCoreService } from './services/askbrain-core.service';
+import { SituationIntelligenceService } from './services/situation-intelligence.service';
 import {
   AskBrainUserContext,
   AskBrainUserProfile,
@@ -45,7 +46,7 @@ import { KnowledgeGraphModule } from '../knowledge-graph/knowledge-graph.module'
     KnowledgeGraphModule,
   ],
   controllers: [AskBrainController],
-  providers: [AskBrainCoreService],
-  exports: [AskBrainCoreService],
+  providers: [AskBrainCoreService, SituationIntelligenceService],
+  exports: [AskBrainCoreService, SituationIntelligenceService],
 })
 export class AskBrainModule {}

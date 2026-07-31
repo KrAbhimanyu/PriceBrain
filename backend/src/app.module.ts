@@ -48,6 +48,7 @@ import { ConstitutionModule } from './constitution/constitution.module';
 import { GovernanceModule } from './governance/governance.module';
 import { EnterpriseMemoryModule } from './enterprise-memory/enterprise-memory.module';
 import { OrganizationAnalyticsModule } from './organization-analytics/organization-analytics.module';
+import { AskBrainModule } from './askbrain/askbrain.module';
 // Common
 import { ObservabilityModule } from './common/observability/observability.module';
 
@@ -124,6 +125,8 @@ import { ObservabilityModule } from './common/observability/observability.module
     GovernanceModule,
     EnterpriseMemoryModule,
     OrganizationAnalyticsModule,
+    // AskBrain - AI Commerce Intelligence
+    AskBrainModule,
     // Observability
     ObservabilityModule,
   ],

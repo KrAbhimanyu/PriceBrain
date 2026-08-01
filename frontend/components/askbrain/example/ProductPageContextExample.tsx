@@ -42,6 +42,7 @@ export function CartPageWithAskBrain({ items, total }: { items: any[]; total: nu
     updateContext({
       cartContext: {
         items: items.map(item => ({
+          productId: item.id,
           id: item.id,
           name: item.name,
           price: item.price,

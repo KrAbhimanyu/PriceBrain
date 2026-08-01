@@ -28,6 +28,7 @@ import type {
   CreateOrganizationDto,
   CreateTeamDto,
   CreateProjectDto,
+  AddTeamMemberDto,
 } from '@/types/ai-cos';
 
 // ============ AI Kernel Service ============

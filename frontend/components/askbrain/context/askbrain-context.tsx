@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useReducer, useCallback, useEffect, useRef } from 'react';
+import React, { createContext, useContext, useReducer, useCallback, useEffect, useRef, Suspense } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 import {
   AskBrainState,
@@ -14,6 +14,12 @@ import {
   AskBrainPanelProps,
   ProactiveSuggestion,
 } from '../types/global-ai.types';
+
+// Wrapper component for useSearchParams
+function SearchParamsHandler({ children }: { children: (searchParams: URLSearchParams) => React.ReactNode }) {
+  const searchParams = useSearchParams();
+  return <>{children(searchParams)}</>;
+}
 
 // Initial State
 const initialState: AskBrainState = {
@@ -202,8 +208,8 @@ interface AskBrainContextValue {
 
 const AskBrainContextInstance = createContext<AskBrainContextValue | null>(null);
 
-// Provider Component
-export function AskBrainProvider({ children }: { children: React.ReactNode }) {
+// Inner Provider that uses searchParams
+function AskBrainInnerProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(reducer, initialState);
   const conversationIdRef = useRef<string | null>(null);
   const pathname = usePathname();
@@ -489,6 +495,15 @@ export function AskBrainProvider({ children }: { children: React.ReactNode }) {
   };
 
   return <AskBrainContextInstance.Provider value={value}>{children}</AskBrainContextInstance.Provider>;
+}
+
+// Wrapper component with Suspense for useSearchParams
+export function AskBrainProvider({ children }: { children: React.ReactNode }) {
+  return (
+    <Suspense fallback={<>{children}</>}>
+      <AskBrainInnerProvider>{children}</AskBrainInnerProvider>
+    </Suspense>
+  );
 }
 
 // Hook

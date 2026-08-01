@@ -1,0 +1,347 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+
+  cloud:
+    gateway:
+      # ========================
+      # ROUTES CONFIGURATION
+      # ========================
+      routes:
+        # ---- Auth Service (8081) ----
+        - id: auth-service
+          uri: lb://auth-service
+          predicates:
+            - Path=/api/v1/auth/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: authCircuitBreaker
+            - StripPrefix=1
+
+        # ---- User Service (8082) ----
+        - id: user-service
+          uri: lb://user-service
+          predicates:
+            - Path=/api/v1/users/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: authCircuitBreaker
+            - StripPrefix=1
+        - id: user-service-addresses
+          uri: lb://user-service
+          predicates:
+            - Path=/api/v1/addresses/**
+          filters:
+            - StripPrefix=1
+        - id: user-service-preferences
+          uri: lb://user-service
+          predicates:
+            - Path=/api/v1/preferences/**
+          filters:
+            - StripPrefix=1
+
+        # ---- Product Service (8083) ----
+        - id: product-service
+          uri: lb://product-service
+          predicates:
+            - Path=/api/v1/products/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: productCircuitBreaker
+            - StripPrefix=1
+        - id: product-service-categories
+          uri: lb://product-service
+          predicates:
+            - Path=/api/v1/categories/**
+          filters:
+            - StripPrefix=1
+
+        # ---- Order Service (8084) ----
+        - id: order-service
+          uri: lb://order-service
+          predicates:
+            - Path=/api/v1/orders/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: orderCircuitBreaker
+            - StripPrefix=1
+        - id: order-service-shipping
+          uri: lb://order-service
+          predicates:
+            - Path=/api/v1/shipping/**
+          filters:
+            - StripPrefix=1
+
+        # ---- Payment Service (8085) ----
+        - id: payment-service
+          uri: lb://payment-service
+          predicates:
+            - Path=/api/v1/payments/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: paymentCircuitBreaker
+            - StripPrefix=1
+
+        # ---- Cart Service (8086) ----
+        - id: cart-service
+          uri: lb://cart-service
+          predicates:
+            - Path=/api/v1/cart/**
+          filters:
+            - StripPrefix=1
+
+        # ---- Notification Service (8087) ----
+        - id: notification-service
+          uri: lb://notification-service
+          predicates:
+            - Path=/api/v1/notifications/**
+          filters:
+            - StripPrefix=1
+
+        # ---- AI Service (8088) ----
+        - id: ai-service
+          uri: lb://ai-service
+          predicates:
+            - Path=/api/v1/ai/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: productCircuitBreaker
+            - StripPrefix=1
+
+        # ---- Analytics Service (8089) ----
+        - id: analytics-service
+          uri: lb://analytics-service
+          predicates:
+            - Path=/api/v1/analytics/**
+          filters:
+            - StripPrefix=1
+
+        # ---- Search Service (8090) ----
+        - id: search-service
+          uri: lb://search-service
+          predicates:
+            - Path=/api/v1/search/**
+          filters:
+            - StripPrefix=1
+
+        # ---- Inventory Service (8091) ----
+        - id: inventory-service
+          uri: lb://inventory-service
+          predicates:
+            - Path=/api/v1/inventory/**
+          filters:
+            - StripPrefix=1
+
+        # ---- Seller Service (8092) ----
+        - id: seller-service
+          uri: lb://seller-service
+          predicates:
+            - Path=/api/v1/sellers/**
+          filters:
+            - StripPrefix=1
+
+        # ---- Review Service (8093) ----
+        - id: review-service
+          uri: lb://review-service
+          predicates:
+            - Path=/api/v1/reviews/**
+          filters:
+            - StripPrefix=1
+
+        # ---- Wishlist Service (8094) ----
+        - id: wishlist-service
+          uri: lb://wishlist-service
+          predicates:
+            - Path=/api/v1/wishlists/**
+          filters:
+            - StripPrefix=1
+
+      # ========================
+      # GLOBAL CORS CONFIGURATION
+      # ========================
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins:
+              - "https://pricebrain.com"
+              - "https://www.pricebrain.com"
+              - "http://localhost:3000"
+              - "http://localhost:5173"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - PATCH
+              - OPTIONS
+            allowedHeaders:
+              - "*"
+            allowCredentials: true
+            maxAge: 3600
+
+      # ========================
+      # DEFAULT FILTERS
+      # ========================
+      default-filters:
+        - DedupeResponseHeader=Vary Access-Control-Allow-Origin Access-Control-Allow-Credentials
+        - name: RequestRateLimiter
+          args:
+            redis-rate-limiter.replenishRate: 100
+            redis-rate-limiter.burstCapacity: 200
+            redis-rate-limiter.requestedTokens: 1
+
+    # ========================
+    # SERVICE DISCOVERY (Eureka)
+    # ========================
+    discovery:
+      client:
+        simple:
+          instances:
+            auth-service:
+              - uri: http://localhost:8081
+            user-service:
+              - uri: http://localhost:8082
+            product-service:
+              - uri: http://localhost:8083
+            order-service:
+              - uri: http://localhost:8084
+            payment-service:
+              - uri: http://localhost:8085
+            cart-service:
+              - uri: http://localhost:8086
+            notification-service:
+              - uri: http://localhost:8087
+            ai-service:
+              - uri: http://localhost:8088
+            analytics-service:
+              - uri: http://localhost:8089
+            search-service:
+              - uri: http://localhost:8090
+            inventory-service:
+              - uri: http://localhost:8091
+            seller-service:
+              - uri: http://localhost:8092
+            review-service:
+              - uri: http://localhost:8093
+            wishlist-service:
+              - uri: http://localhost:8094
+
+  # Redis Configuration for Rate Limiting
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: ${REDIS_PASSWORD:}
+      timeout: 2000ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+
+# Management & Monitoring
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, metrics, prometheus
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: when_authorized
+    prometheus:
+      enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
+
+# Security Configuration
+security:
+  jwt:
+    secret: ${JWT_SECRET:default-gateway-secret-key-for-development-change-in-prod}
+    public-key: ${JWT_PUBLIC_KEY:}
+    issuer: PriceBrain
+
+# Logging
+logging:
+  level:
+    root: INFO
+    org.springframework.cloud.gateway: DEBUG
+    com.pricebrain: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%X{correlationId}] [%X{requestId}] %-5level %logger{36} - %msg%n"
+
+# Resilience4j Circuit Breaker
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        slidingWindowType: COUNT_BASED
+        slidingWindowSize: 10
+        failureRateThreshold: 50
+        waitDurationInOpenState: 30s
+        permittedNumberOfCallsInHalfOpenState: 5
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+    instances:
+      authCircuitBreaker:
+        slidingWindowSize: 5
+        failureRateThreshold: 80
+      productCircuitBreaker:
+        slidingWindowSize: 20
+        failureRateThreshold: 50
+      orderCircuitBreaker:
+        slidingWindowSize: 10
+        failureRateThreshold: 50
+      paymentCircuitBreaker:
+        slidingWindowSize: 5
+        failureRateThreshold: 30
+
+---
+# Development Profile
+spring:
+  config:
+    activate:
+      on-profile: development
+
+  cloud:
+    discovery:
+      client:
+        simple:
+          enabled: false
+
+logging:
+  level:
+    root: INFO
+    org.springframework.cloud.gateway: TRACE
+    com.pricebrain: TRACE
+
+---
+# Production Profile  
+spring:
+  config:
+    activate:
+      on-profile: production
+
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD}
+
+  cloud:
+    discovery:
+      enabled: true
+
+management:
+  tracing:
+    sampling:
+      probability: 0.1

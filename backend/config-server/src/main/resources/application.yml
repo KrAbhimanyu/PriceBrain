@@ -1,0 +1,41 @@
+server:
+  port: 8888
+
+spring:
+  application:
+    name: config-server
+  cloud:
+    config:
+      server:
+        # Git backend for configuration
+        git:
+          uri: ${CONFIG_GIT_URI:https://github.com/KrAbhimanyu/PriceBrain-config.git}
+          default-label: main
+          timeout: 10
+          # Search paths for config files
+          search-paths: '{application}'
+        # Enable health indicator
+        health:
+          enabled: true
+
+# Eureka integration
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_SERVER:http://localhost:8761/eureka}
+    enabled: true
+
+# Management endpoints
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, metrics, env, configprops
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    root: INFO
+    org.springframework.cloud.config: DEBUG

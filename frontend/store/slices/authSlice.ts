@@ -1,14 +1,10 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { User } from '@/types';
-
-type UserRole = 'buyer' | 'seller';
+import { User, UserRole } from '@/types';
 
 interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  role: UserRole;
-  sellerVerified: boolean;
   sessions: Session[];
 }
 
@@ -26,8 +22,6 @@ const initialState: AuthState = {
   user: null,
   isAuthenticated: false,
   isLoading: true,
-  role: 'buyer',
-  sellerVerified: false,
   sessions: [],
 };
 
@@ -47,18 +41,12 @@ const authSlice = createSlice({
       state.user = null;
       state.isAuthenticated = false;
       state.isLoading = false;
-      state.role = 'buyer';
+      state.sessions = [];
     },
     updateUser: (state, action: PayloadAction<Partial<User>>) => {
       if (state.user) {
         state.user = { ...state.user, ...action.payload };
       }
-    },
-    switchRole: (state, action: PayloadAction<UserRole>) => {
-      state.role = action.payload;
-    },
-    setSellerVerified: (state, action: PayloadAction<boolean>) => {
-      state.sellerVerified = action.payload;
     },
     setSessions: (state, action: PayloadAction<Session[]>) => {
       state.sessions = action.payload;
@@ -69,5 +57,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { setUser, setLoading, logout, updateUser, switchRole, setSellerVerified, setSessions, revokeSession } = authSlice.actions;
+export const { setUser, setLoading, logout, updateUser, setSessions, revokeSession } = authSlice.actions;
 export default authSlice.reducer;

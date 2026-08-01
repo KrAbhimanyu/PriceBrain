@@ -34,15 +34,18 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useAppSelector, useAppDispatch } from '@/hooks';
 import { toggleMobileMenu, toggleSearchModal } from '@/store/slices/uiSlice';
-import { logout, switchRole } from '@/store/slices/authSlice';
+import { logout } from '@/store/slices/authSlice';
 import { NAV_LINKS, USER_MENU_LINKS } from '@/constants';
+import { updateUser } from '@/store/slices/authSlice';
+import type { UserRole } from '@/types';
 
 export function Navbar() {
   const pathname = usePathname();
   const dispatch = useAppDispatch();
   const [searchQuery, setSearchQuery] = useState('');
-  const { isAuthenticated, user, role } = useAppSelector((state) => state.auth);
+  const { isAuthenticated, user } = useAppSelector((state) => state.auth);
   const { mobileMenuOpen } = useAppSelector((state) => state.ui);
+  const role = user?.role || 'buyer';
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,10 +54,12 @@ export function Navbar() {
     }
   };
 
-  const handleSwitchRole = (newRole: 'buyer' | 'seller') => {
-    dispatch(switchRole(newRole));
+  const handleSwitchRole = (newRole: UserRole) => {
+    dispatch(updateUser({ role: newRole }));
     if (newRole === 'seller') {
       window.location.href = '/seller';
+    } else if (newRole === 'admin') {
+      window.location.href = '/admin';
     } else {
       window.location.href = '/';
     }

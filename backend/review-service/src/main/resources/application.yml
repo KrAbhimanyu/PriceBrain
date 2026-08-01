@@ -1,0 +1,55 @@
+server:
+  port: 8092
+
+spring:
+  application:
+    name: review-service
+
+  data:
+    mongodb:
+      uri: mongodb://${MONGODB_HOST:localhost}:${MONGODB_PORT:27017}/pricebrain_reviews
+      database: pricebrain_reviews
+
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    consumer:
+      group-id: review-service
+      auto-offset-reset: earliest
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_SERVER:http://localhost:8761/eureka}
+
+# AI Moderation
+ai:
+  moderation:
+    enabled: ${AI_MODERATION_ENABLED:false}
+    provider: ${AI_MODERATION_PROVIDER:openai}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, metrics
+
+logging:
+  level:
+    root: INFO
+    com.pricebrain: DEBUG
+
+---
+spring:
+  config:
+    activate:
+      on-profile: development
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration
+eureka:
+  client:
+    enabled: false

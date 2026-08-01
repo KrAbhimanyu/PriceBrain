@@ -55,7 +55,7 @@ export default function LoginPage() {
         id: '1',
         email: data.email,
         name: data.email.split('@')[0],
-        role: 'user',
+        role: 'buyer',
         createdAt: new Date(),
         updatedAt: new Date(),
       }));

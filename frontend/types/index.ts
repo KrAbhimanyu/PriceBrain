@@ -1,10 +1,13 @@
+export type UserRole = 'buyer' | 'seller' | 'admin';
+
 export interface User {
   id: string;
   email: string;
   name: string;
   avatar?: string;
   phone?: string;
-  role: 'user' | 'admin';
+  role: UserRole;
+  sellerVerified?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -642,4 +645,926 @@ export interface MissionDashboardData {
     failure: number;
     avgExecutionTime: number;
   };
+}
+// Personalization Types
+export interface RecentlyViewedProduct {
+  product: Product;
+  viewedAt: Date;
+}
+
+export interface SmartCollection {
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+  icon: string;
+  products: Product[];
+  productCount: number;
+}
+
+export interface AIRecommendationItem {
+  id: string;
+  product: Product;
+  reason: string;
+  confidence: number;
+  type: 'similar' | 'trending' | 'bestseller' | 'personalized' | 'price_drop' | 'back_in_stock';
+}
+
+export interface ContinueShoppingItem {
+  product: Product;
+  lastViewed: Date;
+  priceChange?: number;
+}
+
+export interface SellerDailyGoal {
+  id: string;
+  type: 'revenue' | 'orders' | 'products' | 'customers';
+  target: number;
+  current: number;
+  progress: number;
+  deadline: Date;
+}
+
+export interface SellerRevenueCard {
+  id: string;
+  title: string;
+  value: number;
+  change: number;
+  changeType: 'increase' | 'decrease' | 'neutral';
+  period: string;
+}
+
+export interface SellerBusinessInsight {
+  id: string;
+  type: 'opportunity' | 'alert' | 'tip' | 'trend';
+  title: string;
+  description: string;
+  impact: 'high' | 'medium' | 'low';
+  actionUrl?: string;
+  createdAt: Date;
+}
+
+export interface SellerAISuggestion {
+  id: string;
+  title: string;
+  description: string;
+  potentialImpact: string;
+  category: 'pricing' | 'inventory' | 'marketing' | 'product';
+  actionLabel: string;
+}
+
+export interface MarketplaceHealthMetric {
+  id: string;
+  name: string;
+  value: number;
+  target: number;
+  status: 'healthy' | 'warning' | 'critical';
+  trend: 'up' | 'down' | 'stable';
+  changePercent: number;
+}
+
+export interface LiveAlert {
+  id: string;
+  type: 'scraper' | 'system' | 'user' | 'revenue';
+  severity: 'info' | 'warning' | 'critical';
+  title: string;
+  message: string;
+  timestamp: Date;
+  isRead: boolean;
+  actionUrl?: string;
+}
+
+export interface ExecutiveMetric {
+  id: string;
+  category: 'revenue' | 'users' | 'products' | 'engagement';
+  title: string;
+  value: number;
+  formattedValue: string;
+  change: number;
+  changePercent: number;
+  trend: TrendData[];
+}
+
+// Fashion & AI Stylist Types
+
+export type Gender = 'male' | 'female' | 'unisex';
+export type AgeGroup = 'teen' | 'young_adult' | 'adult' | 'middle_aged' | 'senior';
+export type Season = 'spring' | 'summer' | 'monsoon' | 'autumn' | 'winter';
+export type BodyType = 'slim' | 'athletic' | 'average' | 'plus_size';
+export type SkinTone = 'fair' | 'wheatish' | 'medium' | 'dark';
+export type Occasion = 
+  | 'casual' 
+  | 'formal' 
+  | 'office' 
+  | 'wedding' 
+  | 'date' 
+  | 'party' 
+  | 'sports' 
+  | 'beach' 
+  | 'festival' 
+  | 'college' 
+  | 'interview'
+  | 'date_night'
+  | 'reception'
+  | 'engagement'
+  | 'mehendi'
+  | 'ceremony';
+export type OutfitCategory = 'best_selling' | 'budget_friendly' | 'mid_range';
+
+export interface UserStyleProfile {
+  gender: Gender;
+  ageGroup: AgeGroup;
+  bodyType: BodyType;
+  skinTone: SkinTone;
+  preferredColors: string[];
+  preferredStyles: string[];
+  preferredBrands: string[];
+  budget: { min: number; max: number };
+  wardrobeItems: WardrobeItem[];
+  dislikedItems: string[];
+  occasions: Occasion[];
+  size: string;
+}
+
+export interface WardrobeItem {
+  id: string;
+  name: string;
+  category: string;
+  color: string;
+  brand?: string;
+  imageUrl?: string;
+  addedAt: Date;
+}
+
+export interface FashionContext {
+  userProfile?: Partial<UserStyleProfile>;
+  occasion?: Occasion;
+  location?: string;
+  weather?: {
+    temperature: number;
+    condition: 'sunny' | 'cloudy' | 'rainy' | 'humid' | 'cold';
+  };
+  budget?: { min?: number; max?: number };
+  gender?: Gender;
+  existingItem?: string;
+  preferences?: string[];
+}
+
+export interface OutfitItem {
+  id: string;
+  product: Product;
+  slot: OutfitSlot;
+  price: number;
+  originalPrice: number;
+  discount: number;
+  isPrimary: boolean;
+  matchScore: number;
+  retailer: Retailer;
+}
+
+export type OutfitSlot = 
+  | 'top'
+  | 'bottom'
+  | 'dress'
+  | 'outerwear'
+  | 'footwear'
+  | 'accessory'
+  | 'watch'
+  | 'jewelry'
+  | 'bag'
+  | 'belt'
+  | 'sunglasses'
+  | 'hat'
+  | 'scarf'
+  | 'perfume'
+  | 'socks'
+  | 'tie'
+  | 'pocket_square';
+
+export interface Outfit {
+  id: string;
+  name: string;
+  description: string;
+  category: OutfitCategory;
+  occasion: Occasion;
+  items: OutfitItem[];
+  totalPrice: number;
+  originalTotalPrice: number;
+  totalDiscount: number;
+  aiExplanation: AIOutfitExplanation;
+  ratings: OutfitRatings;
+  crossSellItems: OutfitItem[];
+  isComplete: boolean;
+  imageUrl?: string;
+  createdAt: Date;
+}
+
+export interface AIOutfitExplanation {
+  whyItSuits: string;
+  colorMatching: string;
+  budgetFit: string;
+  styleNotes: string;
+  trendAlignment: string;
+  bodyTypeSuitability: string;
+  skinToneRecommendation: string;
+  weatherAppropriate: string;
+}
+
+export interface OutfitRatings {
+  style: number;      // 1-10
+  comfort: number;    // 1-10
+  trendScore: number; // 1-10
+  popularity: number;  // 1-10
+  aiConfidence: number; // 1-10
+  overall: number;     // 1-10
+}
+
+export interface FashionChatMessage {
+  id: string;
+  role: 'user' | 'assistant' | 'system';
+  content: string;
+  timestamp: Date;
+  attachments?: string[];
+  context?: FashionContext;
+  recommendations?: Outfit[];
+  suggestedQuestions?: string[];
+}
+
+export interface FashionRecommendationRequest {
+  userInput: string;
+  context?: FashionContext;
+  includeCategories?: OutfitCategory[];
+  limit?: number;
+  userId?: string;
+}
+
+export interface FashionRecommendationResponse {
+  success: boolean;
+  outfits: Outfit[];
+  totalCount: number;
+  context: FashionContext;
+  suggestedFollowUps: string[];
+  missingInfo?: string[];
+}
+
+export interface OutfitComparison {
+  outfits: Outfit[];
+  comparedAspects: ComparisonAspect[];
+}
+
+export interface ComparisonAspect {
+  name: string;
+  values: Record<string, string | number>;
+  winner: string;
+}
+
+export interface MixMatchSuggestion {
+  baseItem: OutfitItem;
+  suggestions: {
+    item: OutfitItem;
+    matchReason: string;
+    matchScore: number;
+    occasions: Occasion[];
+  }[];
+}
+
+export interface ColorCombination {
+  primary: string;
+  secondary: string;
+  accent: string;
+  neutral: string;
+  whyItWorks: string;
+  occasions: Occasion[];
+}
+
+export interface CelebrityInspiredLook {
+  celebrity: string;
+  event: string;
+  outfitDescription: string;
+  similarProducts: Product[];
+  howToAchieve: string;
+}
+
+export interface SeasonalSuggestion {
+  season: Season;
+  trendingStyles: string[];
+  mustHaveItems: string[];
+  colors: string[];
+  tips: string[];
+}
+
+export interface FestivalOutfitSuggestion {
+  festival: string;
+  tradition: string;
+  outfitDescription: string;
+  recommendedItems: string[];
+  stylingTips: string[];
+}
+
+// AI Command Center Types
+
+export type AICommand = 
+  | 'ask_brain'
+  | 'ai_chat'
+  | 'ai_search'
+  | 'ai_voice'
+  | 'ai_vision'
+  | 'ai_history'
+  | 'ai_memory'
+  | 'ai_tasks'
+  | 'ai_recommendations'
+  | 'ai_shopping'
+  | 'ai_business'
+  | 'ai_automation'
+  | 'ai_settings';
+
+export interface AICommandItem {
+  id: AICommand;
+  label: string;
+  icon: string;
+  badge?: number;
+  description: string;
+}
+
+export interface AIConversation {
+  id: string;
+  title: string;
+  messages: AIChatMessage[];
+  createdAt: Date;
+  updatedAt: Date;
+  isPinned: boolean;
+  isArchived: boolean;
+  folder?: string;
+  tags: string[];
+}
+
+export interface AIChatMessage {
+  id: string;
+  role: 'user' | 'assistant' | 'system';
+  content: string;
+  timestamp: Date;
+  attachments?: string[];
+  metadata?: Record<string, unknown>;
+}
+
+export interface AIConversationFolder {
+  id: string;
+  name: string;
+  color: string;
+  icon: string;
+  conversationCount: number;
+}
+
+export interface AITask {
+  id: string;
+  title: string;
+  description: string;
+  status: 'pending' | 'running' | 'completed' | 'failed' | 'cancelled';
+  progress: number;
+  createdAt: Date;
+  updatedAt: Date;
+  estimatedCompletion?: Date;
+  agentsWorking?: string[];
+  finalReport?: string;
+  result?: unknown;
+  error?: string;
+}
+
+export interface AIMemory {
+  id: string;
+  key: string;
+  value: string;
+  category: 'preferences' | 'shopping' | 'brands' | 'budget' | 'context' | 'profile' | 'business';
+  confidence: number;
+  lastUpdated: Date;
+  source: 'explicit' | 'learned' | 'inferred';
+}
+
+export interface AIWidget {
+  id: string;
+  type: AIWidgetType;
+  title: string;
+  icon: string;
+  refreshInterval: number;
+  isVisible: boolean;
+  order: number;
+}
+
+export type AIWidgetType = 
+  | 'price_drop'
+  | 'trending_products'
+  | 'ai_deals'
+  | 'flash_sale'
+  | 'recently_compared'
+  | 'budget_progress'
+  | 'wishlist_intelligence'
+  | 'todays_recommendations'
+  | 'seller_analytics'
+  | 'marketplace_health';
+
+export interface PriceDropItem {
+  productId: string;
+  productName: string;
+  productImage: string;
+  previousPrice: number;
+  currentPrice: number;
+  dropPercentage: number;
+  retailer: string;
+  aiRecommendation: 'buy_now' | 'wait' | 'watch';
+  confidenceScore: number;
+}
+
+export interface TrendingProduct {
+  productId: string;
+  productName: string;
+  productImage: string;
+  price: number;
+  originalPrice: number;
+  discount: number;
+  viewCount: number;
+  purchaseCount: number;
+  aiTrendScore: number;
+  category: string;
+  isViral: boolean;
+}
+
+export interface AIDeal {
+  id: string;
+  title: string;
+  description: string;
+  discount: number;
+  originalPrice: number;
+  currentPrice: number;
+  expiresAt: Date;
+  productId: string;
+  productImage: string;
+  retailer: string;
+  dealType: 'flash' | 'bundle' | 'cashback' | 'hidden' | 'ai_savings';
+  aiSavingsScore: number;
+}
+
+export interface FlashSale {
+  id: string;
+  title: string;
+  discount: number;
+  originalPrice: number;
+  salePrice: number;
+  endsAt: Date;
+  stockRemaining: number;
+  totalStock: number;
+  productId: string;
+  productImage: string;
+  retailer: string;
+  aiUrgencyScore: number;
+}
+
+export interface BudgetProgress {
+  monthlyBudget: number;
+  spent: number;
+  remaining: number;
+  savingsGoal: number;
+  currentSavings: number;
+  forecastedSpend: number;
+  categoryBreakdown: Record<string, number>;
+  aiSuggestions: string[];
+}
+
+export interface WishlistIntelligence {
+  productId: string;
+  productName: string;
+  productImage: string;
+  targetPrice: number;
+  currentPrice: number;
+  lowestPrice: number;
+  highestPrice: number;
+  priceChange: number;
+  stockStatus: 'in_stock' | 'low_stock' | 'out_of_stock';
+  aiPriority: number;
+  bestTimeToBuy: 'now' | 'this_week' | 'this_month' | 'wait';
+  priceDropPrediction?: Date;
+}
+
+export interface AIMarketplaceHealth {
+  activeUsers: number;
+  productsTracked: number;
+  totalSavings: number;
+  conversionRate: number;
+  scraperUptime: number;
+  priceAccuracy: number;
+  trendingCategories: string[];
+  healthScore: number;
+}
+
+export interface AISellerAnalytics {
+  totalRevenue: number;
+  revenueChange: number;
+  ordersToday: number;
+  productsListed: number;
+  conversionRate: number;
+  averageRating: number;
+  lowStockAlerts: number;
+  pendingOrders: number;
+  topProducts: Array<{ id: string; name: string; sales: number }>;
+  aiInsights: string[];
+}
+
+// Global Experience Types
+
+export type Language = 
+  | 'en' | 'hi' | 'ta' | 'te' | 'kn' | 'ml' | 'bn' | 'mr' | 'gu' | 'pa' 
+  | 'ur' | 'ar' | 'fr' | 'de' | 'es' | 'pt' | 'ja' | 'ko' | 'zh' | 'it' | 'ru';
+
+export type Currency = 'INR' | 'USD' | 'EUR' | 'GBP' | 'AED' | 'SGD' | 'CAD' | 'AUD' | 'JPY' | 'CNY';
+
+export type Region = 
+  | 'india' | 'usa' | 'europe' | 'middle_east' | 'asia' | 'africa' | 'latin_america' | 'oceania';
+
+export type TimeZone = string;
+
+export interface LanguageInfo {
+  code: Language;
+  name: string;
+  nativeName: string;
+  direction: 'ltr' | 'rtl';
+  flag: string;
+}
+
+export interface CurrencyInfo {
+  code: Currency;
+  name: string;
+  symbol: string;
+  exchangeRate: number;
+  lastUpdated: Date;
+}
+
+export interface RegionInfo {
+  code: Region;
+  name: string;
+  festivals: string[];
+  themes: string[];
+  timezone: string;
+}
+
+export interface GlobalPreferences {
+  language: Language;
+  currency: Currency;
+  region: Region;
+  timezone: string;
+  dateFormat: string;
+  numberFormat: string;
+}
+
+export interface ExchangeRate {
+  from: Currency;
+  to: Currency;
+  rate: number;
+  timestamp: Date;
+}
+
+// Accessibility Types
+
+export type ContrastMode = 'normal' | 'high' | 'maximum';
+export type FontSize = 'small' | 'medium' | 'large' | 'extra_large';
+export type LineHeight = 'compact' | 'normal' | 'relaxed';
+export type ColorBlindnessMode = 'none' | 'protanopia' | 'deuteranopia' | 'tritanopia';
+
+export interface AccessibilitySettings {
+  highContrast: boolean;
+  contrastMode: ContrastMode;
+  fontSize: FontSize;
+  lineHeight: LineHeight;
+  letterSpacing: number;
+  dyslexicFont: boolean;
+  reducedMotion: boolean;
+  colorBlindnessMode: ColorBlindnessMode;
+  screenReaderOptimized: boolean;
+  keyboardNavigation: boolean;
+  voiceNavigation: boolean;
+  captionsEnabled: boolean;
+  focusIndicator: boolean;
+  skipLinks: boolean;
+}
+
+export interface FontScalingConfig {
+  base: number;
+  scale: number;
+  lineHeight: Record<LineHeight, number>;
+  fontSize: Record<FontSize, number>;
+}
+
+// AI-SOS Digital Twin Dashboard Types
+
+export interface MarketplaceSimulation {
+  buyers: SimulationEntity;
+  sellers: SimulationEntity;
+  orders: SimulationEntity;
+  products: SimulationEntity;
+  aiAgents: SimulationEntity;
+  deliveries: SimulationEntity;
+  sessions: SimulationEntity;
+}
+
+export interface SimulationEntity {
+  total: number;
+  active: number;
+  healthy: number;
+  warning: number;
+  critical: number;
+}
+
+export interface RevenueForecast {
+  period: 'daily' | 'weekly' | 'monthly' | 'quarterly' | 'annual';
+  predicted: number;
+  lowerBound: number;
+  upperBound: number;
+  confidence: number;
+  drivers: string[];
+  risks: string[];
+  opportunities: string[];
+}
+
+export interface DemandForecast {
+  category: string;
+  predictedDemand: number;
+  currentDemand: number;
+  changePercent: number;
+  confidence: number;
+  seasonal: boolean;
+  festival: boolean;
+  trend: 'up' | 'down' | 'stable';
+}
+
+export interface RiskIntelligence {
+  id: string;
+  type: 'fraud' | 'security' | 'inventory' | 'revenue' | 'infrastructure' | 'churn';
+  title: string;
+  description: string;
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  score: number;
+  impact: string;
+  mitigation: string[];
+  detectedAt: Date;
+  status: 'active' | 'mitigated' | 'resolved' | 'false_positive';
+}
+
+export interface OpportunityIntelligence {
+  id: string;
+  type: 'product' | 'category' | 'market' | 'seller' | 'marketing' | 'automation';
+  title: string;
+  description: string;
+  revenuePotential: number;
+  roi: number;
+  confidence: number;
+  strategicImportance: 'low' | 'medium' | 'high';
+  status: 'discovered' | 'evaluating' | 'approved' | 'implemented';
+  createdAt: Date;
+}
+
+export interface AISOSHealth {
+  status: 'healthy' | 'degraded' | 'critical';
+  uptime: number;
+  activeMissions: number;
+  completedMissions: number;
+  failedMissions: number;
+  avgResponseTime: number;
+  lastHealthCheck: Date;
+}
+
+export interface ExecutiveMetrics {
+  marketplaceHealthScore: number;
+  trustScore: number;
+  aiPerformance: number;
+  totalRevenue: number;
+  revenueGrowth: number;
+  activeUsers: number;
+  activeSellers: number;
+  totalProducts: number;
+  conversionRate: number;
+  avgOrderValue: number;
+  customerSatisfaction: number;
+}
+
+export interface LiveActivity {
+  id: string;
+  type: 'order' | 'user' | 'product' | 'ai_agent' | 'delivery';
+  action: string;
+  location: string;
+  timestamp: Date;
+  metadata?: Record<string, unknown>;
+}
+
+export interface SimulationScenario {
+  id: string;
+  name: string;
+  description: string;
+  type: 'flash_sale' | 'pricing' | 'marketing' | 'expansion' | 'optimization';
+  parameters: Record<string, unknown>;
+  estimatedImpact: {
+    revenue: number;
+    customers: number;
+    sellers: number;
+    risk: number;
+    roi: number;
+  };
+  status: 'draft' | 'simulating' | 'completed' | 'applied';
+}
+
+// Gamification Types
+
+export type BadgeCategory = 'shopping' | 'ai' | 'social' | 'seller' | 'achievement';
+export type BadgeRarity = 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';
+
+export interface Badge {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  category: BadgeCategory;
+  rarity: BadgeRarity;
+  progress: number;
+  maxProgress: number;
+  isUnlocked: boolean;
+  unlockedAt?: Date;
+  rewards: {
+    points: number;
+    cashback?: number;
+    badge?: string;
+  };
+  requirements: string[];
+}
+
+export interface UserReward {
+  id: string;
+  type: 'points' | 'cashback' | 'coupon' | 'ai_credits' | 'referral' | 'achievement';
+  amount: number;
+  earnedAt: Date;
+  source: string;
+}
+
+export interface ShoppingStreak {
+  type: 'daily_login' | 'daily_search' | 'daily_purchase' | 'ai_interaction';
+  currentStreak: number;
+  longestStreak: number;
+  lastActivity: Date;
+  rewards: {
+    bonusPoints: number;
+    couponCode?: string;
+    exclusiveAccess?: string[];
+  };
+}
+
+export interface Challenge {
+  id: string;
+  title: string;
+  description: string;
+  type: 'buyer' | 'seller' | 'ai';
+  category: string;
+  progress: number;
+  target: number;
+  rewards: {
+    points: number;
+    badge?: string;
+    cashback?: number;
+  };
+  deadline: Date;
+  status: 'active' | 'completed' | 'expired';
+  isAIgenerated: boolean;
+}
+
+export interface SellerGrowthScore {
+  totalScore: number;
+  revenueGrowth: number;
+  customerSatisfaction: number;
+  deliveryPerformance: number;
+  productQuality: number;
+  returnRate: number;
+  reviewQuality: number;
+  aiAdoption: number;
+  inventoryHealth: number;
+  marketingPerformance: number;
+  trends: {
+    daily: number;
+    weekly: number;
+    monthly: number;
+  };
+}
+
+export interface RewardWallet {
+  points: number;
+  cashback: number;
+  coupons: Array<{
+    code: string;
+    discount: number;
+    expiresAt: Date;
+  }>;
+  aiCredits: number;
+  referralRewards: number;
+  achievementRewards: number;
+}
+
+// AI-SOS Operating System Types
+
+export type MissionStatus = 'pending' | 'running' | 'completed' | 'failed' | 'paused' | 'cancelled';
+export type MissionPriority = 'low' | 'medium' | 'high' | 'critical';
+
+export interface AIMission {
+  id: string;
+  name: string;
+  description: string;
+  type: string;
+  status: MissionStatus;
+  priority: MissionPriority;
+  progress: number;
+  assignedAgents: string[];
+  createdAt: Date;
+  startedAt?: Date;
+  completedAt?: Date;
+  estimatedCompletion?: Date;
+  result?: string;
+  error?: string;
+}
+
+export interface AIAgent {
+  id: string;
+  name: string;
+  type: 'executive' | 'worker' | 'specialist';
+  status: 'idle' | 'busy' | 'failed' | 'offline';
+  currentMission?: string;
+  completedMissions: number;
+  failedMissions: number;
+  avgExecutionTime: number;
+  health: number;
+  capabilities: string[];
+}
+
+export interface ExecutiveAI {
+  id: string;
+  name: string;
+  role: string;
+  status: 'active' | 'idle' | 'busy';
+  activeDecisions: number;
+  confidence: number;
+  businessImpact: 'low' | 'medium' | 'high';
+  currentMissions: string[];
+  lastActive: Date;
+}
+
+export interface AIMemory {
+  id: string;
+  key: string;
+  value: string;
+  category: 'preferences' | 'shopping' | 'brands' | 'budget' | 'context' | 'profile' | 'business';
+  confidence: number;
+  lastUpdated: Date;
+  source: 'explicit' | 'learned' | 'inferred';
+  type?: 'short_term' | 'long_term' | 'buyer' | 'seller' | 'project' | 'evolution';
+  connections?: string[];
+  strength?: number;
+  createdAt?: Date;
+}
+
+export interface KnowledgeNode {
+  id: string;
+  type: 'buyer' | 'seller' | 'product' | 'order' | 'category' | 'campaign' | 'warehouse';
+  label: string;
+  properties: Record<string, unknown>;
+  connections: string[];
+}
+
+export interface KnowledgeEdge {
+  source: string;
+  target: string;
+  relationship: string;
+  strength: number;
+}
+
+export interface EventMessage {
+  id: string;
+  type: string;
+  source: string;
+  target?: string;
+  payload: Record<string, unknown>;
+  timestamp: Date;
+  status: 'pending' | 'processed' | 'failed';
+}
+
+export interface TrustMetrics {
+  overallScore: number;
+  riskScore: number;
+  securityScore: number;
+  complianceScore: number;
+  aiConfidence: number;
+  humanApprovals: number;
+  governanceStatus: 'compliant' | 'warning' | 'critical';
+}
+
+export interface DashboardMetric {
+  id: string;
+  label: string;
+  value: number;
+  previousValue: number;
+  change: number;
+  unit: string;
+  trend: 'up' | 'down' | 'stable';
+  isLive: boolean;
 }

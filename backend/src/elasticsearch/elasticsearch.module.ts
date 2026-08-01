@@ -3,6 +3,8 @@ import { ElasticsearchModule as NestElasticsearchModule } from '@nestjs/elastics
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ElasticsearchService } from './elasticsearch.service';
 import { ProductSearchService } from './product-search.service';
+import { ProductsModule } from '../products/products.module';
+import { CacheModule } from '../cache/cache.module';
 
 @Global()
 @Module({
@@ -22,6 +24,8 @@ import { ProductSearchService } from './product-search.service';
         };
       },
     }),
+    ProductsModule,
+    CacheModule,
   ],
   providers: [ElasticsearchService, ProductSearchService],
   exports: [ElasticsearchService, ProductSearchService],

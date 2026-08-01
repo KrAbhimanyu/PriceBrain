@@ -26,7 +26,7 @@ export class AnalyticsProcessor {
     } catch (error) {
       this.logger.error(`Failed to track ${type} event:`, error);
       // Don't throw - analytics failures shouldn't affect user experience
-      return { success: false, type, error: error.message };
+      return { success: false, type, error: (error as Error).message };
     }
   }
 

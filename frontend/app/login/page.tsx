@@ -55,7 +55,9 @@ export default function LoginPage() {
         id: '1',
         email: data.email,
         name: data.email.split('@')[0],
-        createdAt: new Date().toISOString(),
+        role: 'user',
+        createdAt: new Date(),
+        updatedAt: new Date(),
       }));
       
       toast.success('Welcome back!');
